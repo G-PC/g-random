@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Рандомайзер ролей</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+            background: #f0f2f5;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .card {
+            max-width: 950px;
+            width: 100%;
+            background: white;
+            border-radius: 28px;
+            box-shadow: 0 12px 30px rgba(0,0,0,0.1);
+            padding: 24px 28px;
+            transition: all 0.2s;
+        }
+        h1 {
+            font-size: 1.8rem;
+            margin-top: 0;
+            margin-bottom: 0.25rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .sub {
+            color: #4b5563;
+            border-left: 3px solid #1e88e5;
+            padding-left: 14px;
+            margin: 12px 0 24px 0;
+            font-size: 0.95rem;
+        }
+        .two-columns {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+        .col {
+            flex: 1;
+            min-width: 220px;
+        }
+        label {
+            font-weight: 600;
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            color: #1f2937;
+        }
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border-radius: 16px;
+            border: 1px solid #cbd5e1;
+            font-family: monospace;
+            font-size: 0.9rem;
+            background: #fefefe;
+            resize: vertical;
+        }
+        textarea:focus {
+            outline: none;
+            border-color: #1e88e5;
+            box-shadow: 0 0 0 2px rgba(30,136,229,0.2);
+        }
+        button {
+            background: #1e88e5;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 1.05rem;
+            font-weight: 600;
+            border-radius: 40px;
+            cursor: pointer;
+            width: 100%;
+            transition: 0.15s;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+        button:hover {
+            background: #0b5e8a;
+            transform: scale(0.98);
+        }
+        .result-box {
+            background: #f8fafc;
+            border-radius: 20px;
+            padding: 6px 16px 16px 16px;
+            border: 1px solid #e2e8f0;
+        }
+        .result-title {
+            font-weight: 700;
+            margin: 12px 0 8px 0;
+            font-size: 1.2rem;
+        }
+        .role-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .role-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            background: white;
+            padding: 10px 16px;
+            border-radius: 60px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+        }
+        .participant-name {
+            font-weight: 600;
+            color: #0f172a;
+        }
+        .role-name {
+            font-family: monospace;
+            font-weight: 500;
+            background: #eef2ff;
+            padding: 4px 12px;
+            border-radius: 40px;
+            color: #1e40af;
+        }
+        .warning {
+            background: #fffbeb;
+            border-left: 4px solid #f59e0b;
+            padding: 8px 14px;
+            border-radius: 16px;
+            margin-top: 16px;
+            font-size: 0.85rem;
+            color: #92400e;
+        }
+        hr {
+            margin: 16px 0;
+        }
+        footer {
+            font-size: 0.7rem;
+            text-align: center;
+            color: #6c757d;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+<div class="card">
+    <h1>🎲 Рандомайзер ролей</h1>
+    <div class="sub"></div>
+
+    <div class="two-columns">
+        <div class="col">
+            <label>👥 Участники (по одному на строку)</label>
+            <textarea id="participants" rows="6" placeholder="Анна&#10;Борис&#10;Виктор&#10;Галина"></textarea>
+        </div>
+        <div class="col">
+            <label>🎭 Роли (можно писать «Мафия х2» или «Мирный * 3»)</label>
+            <textarea id="roles" rows="6" placeholder="Мафия&#10;Мирный житель&#10;Мирный житель&#10;Доктор"></textarea>
+            <div style="font-size:12px; margin-top:6px; color:#4b5563;">Пример: Шпион х2, Комиссар, Шериф *2</div>
+        </div>
+    </div>
+
+    <button id="generateBtn">🔀 Случайно распределить роли</button>
+
+    <div class="result-box">
+        <div class="result-title">📋 Результат жеребьёвки</div>
+        <div id="outputContainer">
+            <div style="color: #6c757d; padding: 12px 0;">Нажмите на кнопку — и здесь появится назначение ролей</div>
+        </div>
+        <div class="warning" id="warningMessage" style="display: none;"></div>
+    </div>
+    <footer>Роли тасуются случайно, каждый участник получает одну роль. Данные никуда не уходят — всё работает локально.</footer>
+</div>
+
+<script>
+    (function() {
+        // ----- Функция: разворачиваем "Роль х2", "Роль * 4" -----
+        function expandRoles(rolesArray) {
+            const expanded = [];
+            for (let raw of rolesArray) {
+                let trimmed = raw.trim();
+                if (trimmed === "") continue;
+                
+                // Ищем паттерны: "Название х2" , "Название *2" , "Название х 2" , "Название * 2"
+                let match = trimmed.match(/^(.*?)\s*[хx*]\s*(\d+)$/i);
+                if (match) {
+                    let roleName = match[1].trim();
+                    let count = parseInt(match[2], 10);
+                    if (isNaN(count) || count <= 0) {
+                        expanded.push(trimmed);
+                    } else {
+                        for (let i = 0; i < count; i++) {
+                            expanded.push(roleName);
+                        }
+                    }
+                } else {
+                    expanded.push(trimmed);
+                }
+            }
+            return expanded;
+        }
+
+        // Перемешивание (Fisher-Yates)
+        function shuffleArray(arr) {
+            const a = [...arr];
+            for (let i = a.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [a[i], a[j]] = [a[j], a[i]];
+            }
+            return a;
+        }
+
+        // Экранирование для безопасного вывода (чтобы HTML не ломался)
+        function escapeHtml(str) {
+            return str.replace(/[&<>]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            });
+        }
+
+        const participantsTextarea = document.getElementById('participants');
+        const rolesTextarea = document.getElementById('roles');
+        const generateBtn = document.getElementById('generateBtn');
+        const outputContainer = document.getElementById('outputContainer');
+        const warningDiv = document.getElementById('warningMessage');
+
+        function showResult(participantsList, rolesList) {
+            // Случайное перемешивание ролей
+            const shuffledRoles = shuffleArray(rolesList);
+            
+            // Создаём пары
+            const pairs = participantsList.map((participant, idx) => ({
+                participant: participant,
+                role: shuffledRoles[idx]
+            }));
+            
+            // Рендерим результат красиво
+            let html = `<div class="role-list">`;
+            for (let p of pairs) {
+                html += `
+                    <div class="role-item">
+                        <span class="participant-name">${escapeHtml(p.participant)}</span>
+                        <span class="role-name">${escapeHtml(p.role)}</span>
+                    </div>
+                `;
+            }
+            html += `</div>`;
+            outputContainer.innerHTML = html;
+            warningDiv.style.display = 'none';
+        }
+
+        function showError(message) {
+            warningDiv.innerText = message;
+            warningDiv.style.display = 'block';
+            outputContainer.innerHTML = `<div style="color: #6c757d; padding: 12px 0;">⚠️ Ошибка: ${escapeHtml(message)}</div>`;
+        }
+
+        function handleDistribution() {
+            // Получаем и чистим участников
+            let participantsRaw = participantsTextarea.value.split(/\r?\n/);
+            let participants = participantsRaw.filter(p => p.trim().length > 0);
+            
+            // Получаем роли и разворачиваем (х2, *3)
+            let rolesRaw = rolesTextarea.value.split(/\r?\n/);
+            let rolesFiltered = rolesRaw.filter(r => r.trim().length > 0);
+            let expandedRoles = expandRoles(rolesFiltered);
+            
+            // Проверки
+            if (participants.length === 0) {
+                showError("Добавьте хотя бы одного участника (каждое имя с новой строки).");
+                return;
+            }
+            if (expandedRoles.length === 0) {
+                showError("Добавьте хотя бы одну роль (можно с множителем: Мафия х2).");
+                return;
+            }
+            if (participants.length !== expandedRoles.length) {
+                showError(`Число участников: ${participants.length}, а число ролей (после разворачивания): ${expandedRoles.length}. 
+                Они должны совпадать! Добавьте или уберите роли / участников.`);
+                return;
+            }
+            
+            // Всё хорошо — показываем
+            showResult(participants, expandedRoles);
+        }
+
+        generateBtn.addEventListener('click', handleDistribution);
+        
+        // Оставляем поля полностью пустыми при открытии
+        participantsTextarea.value = "";
+        rolesTextarea.value = "";
+    })();
+</script>
+</body>
+</html>
