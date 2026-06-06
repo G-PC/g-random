@@ -167,7 +167,7 @@
         </div>
         <div class="controls-panel">
             <label>📝 Варианты (каждый с новой строки)</label>
-            <textarea id="optionsInput" placeholder="Пицца&#10;Суши&#10;Бургер&#10;Паста"></textarea>
+            <textarea id="optionsInput" placeholder="Герман&#10;Эмир&#10;Артур&#10;Андрей&#10;Максим"></textarea>
             
             <div class="checkbox-label">
                 <input type="checkbox" id="removeAfterSpin">
@@ -257,9 +257,7 @@
     
     function getCurrentOption() {
         if (options.length === 0) return null;
-        // Стрелка сверху (угол -90 градусов)
         const pointerAngle = -Math.PI / 2;
-        // Находим, какой сектор содержит угол стрелки с учётом вращения
         const angleStep = (2 * Math.PI) / options.length;
         let rawAngle = (pointerAngle - currentRotation + 2 * Math.PI) % (2 * Math.PI);
         let index = Math.floor(rawAngle / angleStep) % options.length;
@@ -334,7 +332,7 @@
         drawWheel();
     }
     
-    optionsInput.value = "Пицца\nСуши\nБургер\nПаста\nСалат";
+    optionsInput.value = "Герман\nЭмир\nАртур\nАндрей\nМаксим";
     updateWheel();
     
     spinBtn.addEventListener('click', spinWheel);
