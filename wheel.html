@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Колесо фортуны — Десктоп</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            user-select: none;
+        }
+        body {
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+            background: #f0f2f5;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .container {
+            max-width: 1400px;
+            width: 100%;
+            background: white;
+            border-radius: 28px;
+            box-shadow: 0 12px 30px rgba(0,0,0,0.1);
+            padding: 28px 32px;
+        }
+        h1 {
+            font-size: 1.8rem;
+            margin: 0 0 8px 0;
+        }
+        .back-btn {
+            display: inline-block;
+            background: #64748b;
+            color: white;
+            text-decoration: none;
+            padding: 8px 20px;
+            border-radius: 40px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+        }
+        .back-btn:hover {
+            background: #475569;
+        }
+        .two-columns {
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+        .wheel-panel {
+            flex: 1;
+            min-width: 300px;
+            text-align: center;
+        }
+        .controls-panel {
+            flex: 0.8;
+            min-width: 280px;
+        }
+        canvas {
+            background: #f8fafc;
+            border-radius: 50%;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            width: 100%;
+            max-width: 500px;
+            height: auto;
+            cursor: pointer;
+        }
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border-radius: 16px;
+            border: 1px solid #cbd5e1;
+            font-family: monospace;
+            font-size: 0.9rem;
+            resize: vertical;
+            height: 200px;
+        }
+        button {
+            background: #1e88e5;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 40px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 12px;
+        }
+        button:hover {
+            background: #0b5e8a;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 16px;
+            background: #eef2ff;
+            border-radius: 20px;
+            text-align: center;
+        }
+        .result-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #1e40af;
+            word-break: break-word;
+        }
+        .history {
+            margin-top: 20px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .history-item {
+            background: #f1f5f9;
+            margin: 5px 0;
+            padding: 8px;
+            border-radius: 10px;
+        }
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 12px 0;
+            cursor: pointer;
+        }
+        hr {
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <a href="index.html" class="back-btn">← На главную</a>
+    <h1>🎡 Колесо фортуны</h1>
+    
+    <div class="two-columns">
+        <div class="wheel-panel">
+            <canvas id="wheelCanvas" width="500" height="500"></canvas>
+            <button id="spinBtn">🔀 Крутить колесо</button>
+        </div>
+        <div class="controls-panel">
+            <label>📝 Варианты (каждый с новой строки)</label>
+            <textarea id="optionsInput" placeholder="Пицца&#10;Суши&#10;Бургер&#10;Паста"></textarea>
+            
+            <div class="checkbox-label">
+                <input type="checkbox" id="removeAfterSpin">
+                <label>🗑️ Удалять выпавший вариант (режим на выбывание)</label>
+            </div>
+            
+            <button id="updateWheelBtn">🔄 Обновить колесо</button>
+            
+            <div class="result">
+                <div style="font-size: 0.9rem; color: #4b5563;">Выпало:</div>
+                <div id="resultDisplay" class="result-value">—</div>
+            </div>
+            
+            <div class="history">
+                <div style="font-weight: 600; margin-bottom: 8px;">📜 История выпадений</div>
+                <div id="historyList"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const canvas = document.getElementById('wheelCanvas');
+    const ctx = canvas.getContext('2d');
+    const optionsInput = document.getElementById('optionsInput');
+    const spinBtn = document.getElementById('spinBtn');
+    const updateWheelBtn = document.getElementById('updateWheelBtn');
+    const resultDisplay = document.getElementById('resultDisplay');
+    const historyList = document.getElementById('historyList');
+    const removeAfterSpin = document.getElementById('removeAfterSpin');
+    
+    let options = [];
+    let currentRotation = 0;
+    let spinning = false;
+    let animationId = null;
+    let history = [];
+    
+    function parseOptions() {
+        let raw = optionsInput.value.split(/\r?\n/);
+        return raw.filter(opt => opt.trim().length > 0);
+    }
+    
+    function drawWheel() {
+        if (!canvas || !ctx) return;
+        const width = canvas.width;
+        const height = canvas.height;
+        const centerX = width / 2;
+        const centerY = height / 2;
+        const radius = width * 0.45;
+        
+        ctx.clearRect(0, 0, width, height);
+        
+        if (options.length === 0) {
+            ctx.fillStyle = '#e2e8f0';
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+            ctx.fill();
+            ctx.fillStyle = '#64748b';
+            ctx.font = 'bold 16px sans-serif';
+            ctx.fillText('Добавьте варианты', centerX - 100, centerY);
+            return;
+        }
+        
+        const angleStep = (2 * Math.PI) / options.length;
+        const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD', '#F0E68C', '#87CEEB', '#FFB347', '#77DD77'];
+        
+        for (let i = 0; i < options.length; i++) {
+            const startAngle = i * angleStep + currentRotation;
+            const endAngle = (i + 1) * angleStep + currentRotation;
+            
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius, startAngle, endAngle);
+            ctx.lineTo(centerX, centerY);
+            ctx.fillStyle = colors[i % colors.length];
+            ctx.fill();
+            ctx.save();
+            ctx.translate(centerX, centerY);
+            ctx.rotate(startAngle + angleStep / 2);
+            ctx.fillStyle = '#1f2937';
+            ctx.font = 'bold 14px sans-serif';
+            let text = options[i];
+            if (text.length > 20) text = text.slice(0, 17) + '...';
+            ctx.fillText(text, radius * 0.65, 5);
+            ctx.restore();
+        }
+        
+        // Стрелка
+        ctx.beginPath();
+        ctx.moveTo(centerX + radius + 15, centerY - 12);
+        ctx.lineTo(centerX + radius + 15, centerY + 12);
+        ctx.lineTo(centerX + radius + 35, centerY);
+        ctx.fillStyle = '#ef4444';
+        ctx.fill();
+    }
+    
+    function getCurrentOption() {
+        if (options.length === 0) return null;
+        const angleStep = (2 * Math.PI) / options.length;
+        let rawAngle = (2 * Math.PI - (currentRotation % (2 * Math.PI))) % (2 * Math.PI);
+        let index = Math.floor(rawAngle / angleStep) % options.length;
+        return options[index];
+    }
+    
+    function spinWheel() {
+        if (spinning || options.length === 0) return;
+        spinning = true;
+        const spinDuration = 2000;
+        const startTime = performance.now();
+        const startRotation = currentRotation;
+        const spins = 8 * Math.PI;
+        const targetRotation = startRotation + spins + Math.random() * 2 * Math.PI;
+        
+        function animateSpin(now) {
+            const elapsed = now - startTime;
+            let t = Math.min(1, elapsed / spinDuration);
+            const easeOut = 1 - Math.pow(1 - t, 3);
+            currentRotation = startRotation + targetRotation * easeOut;
+            drawWheel();
+            
+            if (t < 1) {
+                animationId = requestAnimationFrame(animateSpin);
+            } else {
+                currentRotation = targetRotation % (2 * Math.PI);
+                drawWheel();
+                spinning = false;
+                const result = getCurrentOption();
+                if (result) {
+                    resultDisplay.textContent = result;
+                    history.unshift(result);
+                    if (history.length > 20) history.pop();
+                    updateHistoryDisplay();
+                    
+                    if (removeAfterSpin.checked) {
+                        const index = options.indexOf(result);
+                        if (index !== -1) {
+                            options.splice(index, 1);
+                            optionsInput.value = options.join('\n');
+                            if (options.length === 0) {
+                                resultDisplay.textContent = 'Все варианты выбыли!';
+                            }
+                            drawWheel();
+                        }
+                    }
+                }
+            }
+        }
+        
+        if (animationId) cancelAnimationFrame(animationId);
+        animationId = requestAnimationFrame(animateSpin);
+    }
+    
+    function updateHistoryDisplay() {
+        if (history.length === 0) {
+            historyList.innerHTML = '<div style="color: #6c757d;">Пока пусто</div>';
+            return;
+        }
+        historyList.innerHTML = history.map(h => `<div class="history-item">• ${escapeHtml(h)}</div>`).join('');
+    }
+    
+    function escapeHtml(str) {
+        return str.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'})[m]);
+    }
+    
+    function updateWheel() {
+        options = parseOptions();
+        history = [];
+        updateHistoryDisplay();
+        resultDisplay.textContent = '—';
+        drawWheel();
+    }
+    
+    optionsInput.value = "Пицца\nСуши\nБургер\nПаста\nСалат";
+    updateWheel();
+    
+    spinBtn.addEventListener('click', spinWheel);
+    updateWheelBtn.addEventListener('click', updateWheel);
+    
+    canvas.addEventListener('click', spinWheel);
+    
+    window.addEventListener('resize', () => drawWheel());
+</script>
+</body>
+</html>
