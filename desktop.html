@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Рандомайзер ролей</title>
+    <title>Рандомайзер ролей — Десктоп</title>
     <style>
         * {
             box-sizing: border-box;
@@ -11,45 +11,40 @@
             font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
             background: #f0f2f5;
             margin: 0;
-            padding: 20px;
+            padding: 24px;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
         }
         .card {
-            max-width: 950px;
+            max-width: 1100px;
             width: 100%;
             background: white;
             border-radius: 28px;
             box-shadow: 0 12px 30px rgba(0,0,0,0.1);
-            padding: 24px 28px;
-            transition: all 0.2s;
+            padding: 28px 32px;
         }
         h1 {
             font-size: 1.8rem;
-            margin-top: 0;
-            margin-bottom: 0.25rem;
-            display: flex;
-            align-items: center;
-            gap: 10px;
+            margin: 0 0 8px 0;
         }
         .sub {
             color: #4b5563;
             border-left: 3px solid #1e88e5;
             padding-left: 14px;
-            margin: 12px 0 24px 0;
-            font-size: 0.95rem;
+            margin: 8px 0 24px 0;
+            font-size: 0.9rem;
         }
         .two-columns {
             display: flex;
-            flex-wrap: wrap;
-            gap: 24px;
+            gap: 28px;
             margin-bottom: 24px;
+            flex-wrap: wrap;
         }
         .col {
             flex: 1;
-            min-width: 220px;
+            min-width: 260px;
         }
         label {
             font-weight: 600;
@@ -67,127 +62,240 @@
             font-size: 0.9rem;
             background: #fefefe;
             resize: vertical;
+            height: 200px;
         }
         textarea:focus {
             outline: none;
             border-color: #1e88e5;
             box-shadow: 0 0 0 2px rgba(30,136,229,0.2);
         }
+        input {
+            width: 100%;
+            padding: 12px;
+            border-radius: 16px;
+            border: 1px solid #cbd5e1;
+            font-family: inherit;
+            font-size: 0.95rem;
+        }
+        input:focus {
+            outline: none;
+            border-color: #1e88e5;
+            box-shadow: 0 0 0 2px rgba(30,136,229,0.2);
+        }
+        .quick-panel {
+            background: #f1f5f9;
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+        .quick-panel h3 {
+            margin: 0 0 12px 0;
+            font-size: 1.1rem;
+            color: #1e293b;
+        }
+        .quick-row {
+            display: flex;
+            gap: 16px;
+            align-items: flex-end;
+            flex-wrap: wrap;
+        }
+        .quick-row .field {
+            flex: 1;
+            min-width: 140px;
+        }
+        .quick-row label {
+            margin-bottom: 6px;
+            font-size: 0.8rem;
+        }
         button {
             background: #1e88e5;
             color: white;
             border: none;
             padding: 12px 24px;
-            font-size: 1.05rem;
+            font-size: 0.95rem;
             font-weight: 600;
             border-radius: 40px;
             cursor: pointer;
-            width: 100%;
             transition: 0.15s;
-            margin-bottom: 20px;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
         }
         button:hover {
             background: #0b5e8a;
-            transform: scale(0.98);
+        }
+        .btn-secondary {
+            background: #64748b;
+        }
+        .btn-secondary:hover {
+            background: #475569;
+        }
+        .button-group {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
         }
         .result-box {
             background: #f8fafc;
             border-radius: 20px;
-            padding: 6px 16px 16px 16px;
+            padding: 6px 20px 20px 20px;
             border: 1px solid #e2e8f0;
         }
         .result-title {
             font-weight: 700;
-            margin: 12px 0 8px 0;
+            margin: 16px 0 12px 0;
             font-size: 1.2rem;
         }
         .role-list {
             display: flex;
             flex-direction: column;
-            gap: 6px;
+            gap: 8px;
+            max-height: 400px;
+            overflow-y: auto;
         }
         .role-item {
             display: flex;
             justify-content: space-between;
-            align-items: baseline;
+            align-items: center;
             background: white;
-            padding: 10px 16px;
+            padding: 10px 20px;
             border-radius: 60px;
             border: 1px solid #e2e8f0;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.02);
         }
         .participant-name {
             font-weight: 600;
             color: #0f172a;
         }
         .role-name {
-            font-family: monospace;
             font-weight: 500;
             background: #eef2ff;
-            padding: 4px 12px;
+            padding: 4px 14px;
             border-radius: 40px;
             color: #1e40af;
         }
         .warning {
             background: #fffbeb;
             border-left: 4px solid #f59e0b;
-            padding: 8px 14px;
+            padding: 10px 16px;
             border-radius: 16px;
             margin-top: 16px;
             font-size: 0.85rem;
             color: #92400e;
         }
-        hr {
-            margin: 16px 0;
+        .success {
+            background: #e6f7e6;
+            border-left-color: #4caf50;
+            color: #2e6b2e;
+        }
+        .hint {
+            font-size: 0.7rem;
+            color: #6c757d;
+            margin-top: 6px;
         }
         footer {
             font-size: 0.7rem;
             text-align: center;
             color: #6c757d;
-            margin-top: 20px;
+            margin-top: 24px;
+        }
+        hr {
+            margin: 16px 0;
         }
     </style>
 </head>
 <body>
 <div class="card">
     <h1>🎲 Рандомайзер ролей</h1>
-    <div class="sub"></div>
+    <div class="sub">Распределение по вашей таблице — от 3 до 20 игроков</div>
+
+    <!-- Панель быстрого подбора (по вашей таблице) -->
+    <div class="quick-panel">
+        <h3>📊 Быстрый набор по вашему документу</h3>
+        <div class="quick-row">
+            <div class="field">
+                <label>👥 Количество игроков</label>
+                <input type="number" id="playerCount" min="3" max="20" value="10" step="1">
+            </div>
+            <div class="field">
+                <label>&nbsp;</label>
+                <button id="quickRolesBtn">🎭 Сгенерировать роли по таблице</button>
+            </div>
+        </div>
+        <div class="hint">📋 Роли подставляются строго из вашей таблицы (Мирный, Мафия, Дон, Лунатик, Оборотень, Детектив, Студент, Комиссар, Доктор, Ангел-хранитель, Любовница, Маньяк, Зеркало)</div>
+    </div>
 
     <div class="two-columns">
         <div class="col">
             <label>👥 Участники (по одному на строку)</label>
-            <textarea id="participants" rows="6" placeholder="Анна&#10;Борис&#10;Виктор&#10;Галина"></textarea>
+            <textarea id="participants" placeholder="Анна&#10;Борис&#10;Виктор&#10;Галина&#10;Дмитрий"></textarea>
         </div>
         <div class="col">
-            <label>🎭 Роли (можно писать «Мафия х2» или «Мирный * 3»)</label>
-            <textarea id="roles" rows="6" placeholder="Мафия&#10;Мирный житель&#10;Мирный житель&#10;Доктор"></textarea>
-            <div style="font-size:12px; margin-top:6px; color:#4b5563;">Пример: Шпион х2, Комиссар, Шериф *2</div>
+            <label>🎭 Роли (можно с множителем, например «Мафия х2»)</label>
+            <textarea id="roles" placeholder="Мафия х2&#10;Мирный житель х3&#10;Доктор&#10;Комиссар"></textarea>
+            <div class="hint">📌 Поддерживается формат: «Роль х2», «Роль * 3»</div>
         </div>
     </div>
 
-    <button id="generateBtn">🔀 Случайно распределить роли</button>
+    <div class="button-group">
+        <button id="generateBtn">🔀 Перемешать и раздать</button>
+        <button id="clearBtn" class="btn-secondary">🗑️ Очистить всё</button>
+    </div>
 
     <div class="result-box">
         <div class="result-title">📋 Результат жеребьёвки</div>
         <div id="outputContainer">
-            <div style="color: #6c757d; padding: 12px 0;">Нажмите на кнопку — и здесь появится назначение ролей</div>
+            <div style="color: #6c757d; padding: 20px 0; text-align: center;">Нажмите на кнопку — и здесь появится назначение ролей</div>
         </div>
-        <div class="warning" id="warningMessage" style="display: none;"></div>
+        <div id="messageArea" style="display: none;" class="warning"></div>
     </div>
-    <footer>Роли тасуются случайно, каждый участник получает одну роль. Данные никуда не уходят — всё работает локально.</footer>
+    <footer>Случайное распределение ролей. Данные никуда не уходят. Версия с вашей таблицей ролей.</footer>
 </div>
 
 <script>
     (function() {
-        // ----- Функция: разворачиваем "Роль х2", "Роль * 4" -----
+        // --------------------------------------------------------------
+        // ВАША ТАБЛИЦА РОЛЕЙ (полностью по документу)
+        // Ключ: количество игроков, значение: объект { роль: количество }
+        // --------------------------------------------------------------
+        const rolesByCount = {
+            3: { "Мирный житель": 0, "Мафия": 1, "Комиссар": 1, "Доктор": 1 },
+            4: { "Мирный житель": 0, "Мафия": 1, "Комиссар": 1, "Доктор": 1, "Детектив": 1 },
+            5: { "Мирный житель": 1, "Мафия": 1, "Комиссар": 1, "Доктор": 1, "Детектив": 1 },
+            6: { "Мирный житель": 2, "Мафия": 1, "Комиссар": 1, "Доктор": 1, "Детектив": 1 },
+            7: { "Мирный житель": 2, "Мафия": 2, "Комиссар": 1, "Доктор": 1, "Детектив": 1 },
+            8: { "Мирный житель": 2, "Мафия": 2, "Комиссар": 1, "Доктор": 1, "Детектив": 1, "Любовница": 1 },
+            9: { "Мирный житель": 3, "Мафия": 2, "Комиссар": 1, "Доктор": 1, "Детектив": 1, "Любовница": 1 },
+            10: { "Мирный житель": 3, "Мафия": 2, "Комиссар": 1, "Доктор": 2, "Детектив": 1, "Любовница": 1 },
+            11: { "Мирный житель": 3, "Мафия": 3, "Комиссар": 1, "Доктор": 1, "Детектив": 1, "Любовница": 1, "Студент": 1 },
+            12: { "Мирный житель": 3, "Мафия": 3, "Комиссар": 1, "Доктор": 1, "Детектив": 1, "Любовница": 1, "Студент": 1, "Ангел-хранитель": 1 },
+            13: { "Мирный житель": 2, "Мафия": 3, "Дон": 1, "Комиссар": 1, "Доктор": 1, "Детектив": 1, "Любовница": 1, "Студент": 2, "Ангел-хранитель": 1 },
+            14: { "Мирный житель": 3, "Мафия": 3, "Дон": 1, "Комиссар": 1, "Доктор": 1, "Детектив": 1, "Любовница": 1, "Студент": 2, "Ангел-хранитель": 1 },
+            15: { "Мирный житель": 3, "Мафия": 3, "Дон": 1, "Оборотень": 1, "Комиссар": 1, "Доктор": 1, "Детектив": 1, "Любовница": 1, "Студент": 2, "Ангел-хранитель": 1 },
+            16: { "Мирный житель": 3, "Мафия": 3, "Дон": 1, "Оборотень": 1, "Комиссар": 1, "Доктор": 1, "Детектив": 1, "Любовница": 1, "Студент": 2, "Ангел-хранитель": 1, "Маньяк": 1 },
+            17: { "Мирный житель": 4, "Мафия": 4, "Дон": 1, "Оборотень": 1, "Комиссар": 1, "Доктор": 1, "Детектив": 1, "Любовница": 1, "Студент": 1, "Ангел-хранитель": 1, "Маньяк": 1 },
+            18: { "Мирный житель": 4, "Мафия": 4, "Дон": 1, "Оборотень": 1, "Комиссар": 1, "Доктор": 1, "Детектив": 1, "Любовница": 1, "Студент": 2, "Ангел-хранитель": 1, "Маньяк": 1 },
+            19: { "Мирный житель": 4, "Мафия": 4, "Дон": 1, "Оборотень": 1, "Лунатик": 1, "Комиссар": 1, "Доктор": 1, "Детектив": 1, "Любовница": 1, "Студент": 2, "Ангел-хранитель": 1, "Маньяк": 1 },
+            20: { "Мирный житель": 4, "Мафия": 4, "Дон": 1, "Оборотень": 1, "Лунатик": 1, "Зеркало": 1, "Комиссар": 1, "Доктор": 1, "Детектив": 1, "Любовница": 1, "Студент": 2, "Ангел-хранитель": 1, "Маньяк": 1 }
+        };
+
+        // Преобразование объекта ролей в строку с множителями (например, "Мафия х3")
+        function rolesObjectToString(rolesObj) {
+            let lines = [];
+            for (let [role, count] of Object.entries(rolesObj)) {
+                if (count === 0) continue;
+                if (count === 1) {
+                    lines.push(role);
+                } else {
+                    lines.push(`${role} х${count}`);
+                }
+            }
+            return lines.join('\n');
+        }
+
+        // Разворачивание строк с "х2" в массив
         function expandRoles(rolesArray) {
             const expanded = [];
             for (let raw of rolesArray) {
                 let trimmed = raw.trim();
                 if (trimmed === "") continue;
-                
-                // Ищем паттерны: "Название х2" , "Название *2" , "Название х 2" , "Название * 2"
                 let match = trimmed.match(/^(.*?)\s*[хx*]\s*(\d+)$/i);
                 if (match) {
                     let roleName = match[1].trim();
@@ -195,9 +303,7 @@
                     if (isNaN(count) || count <= 0) {
                         expanded.push(trimmed);
                     } else {
-                        for (let i = 0; i < count; i++) {
-                            expanded.push(roleName);
-                        }
+                        for (let i = 0; i < count; i++) expanded.push(roleName);
                     }
                 } else {
                     expanded.push(trimmed);
@@ -206,7 +312,6 @@
             return expanded;
         }
 
-        // Перемешивание (Fisher-Yates)
         function shuffleArray(arr) {
             const a = [...arr];
             for (let i = a.length - 1; i > 0; i--) {
@@ -216,7 +321,6 @@
             return a;
         }
 
-        // Экранирование для безопасного вывода (чтобы HTML не ломался)
         function escapeHtml(str) {
             return str.replace(/[&<>]/g, function(m) {
                 if (m === '&') return '&amp;';
@@ -226,56 +330,61 @@
             });
         }
 
+        // DOM элементы
         const participantsTextarea = document.getElementById('participants');
         const rolesTextarea = document.getElementById('roles');
         const generateBtn = document.getElementById('generateBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const quickRolesBtn = document.getElementById('quickRolesBtn');
+        const playerCountInput = document.getElementById('playerCount');
         const outputContainer = document.getElementById('outputContainer');
-        const warningDiv = document.getElementById('warningMessage');
+        const messageArea = document.getElementById('messageArea');
+
+        function showMessage(text, isSuccess = false) {
+            messageArea.innerText = text;
+            messageArea.style.display = 'block';
+            if (isSuccess) {
+                messageArea.classList.add('success');
+            } else {
+                messageArea.classList.remove('success');
+            }
+            setTimeout(() => {
+                if (messageArea.innerText === text) {
+                    messageArea.style.display = 'none';
+                }
+            }, 3000);
+        }
 
         function showResult(participantsList, rolesList) {
-            // Случайное перемешивание ролей
             const shuffledRoles = shuffleArray(rolesList);
-            
-            // Создаём пары
             const pairs = participantsList.map((participant, idx) => ({
                 participant: participant,
                 role: shuffledRoles[idx]
             }));
-            
-            // Рендерим результат красиво
             let html = `<div class="role-list">`;
             for (let p of pairs) {
-                html += `
-                    <div class="role-item">
-                        <span class="participant-name">${escapeHtml(p.participant)}</span>
-                        <span class="role-name">${escapeHtml(p.role)}</span>
-                    </div>
-                `;
+                html += `<div class="role-item"><span class="participant-name">${escapeHtml(p.participant)}</span><span class="role-name">${escapeHtml(p.role)}</span></div>`;
             }
             html += `</div>`;
             outputContainer.innerHTML = html;
-            warningDiv.style.display = 'none';
+            messageArea.style.display = 'none';
         }
 
         function showError(message) {
-            warningDiv.innerText = message;
-            warningDiv.style.display = 'block';
-            outputContainer.innerHTML = `<div style="color: #6c757d; padding: 12px 0;">⚠️ Ошибка: ${escapeHtml(message)}</div>`;
+            outputContainer.innerHTML = `<div style="color: #6c757d; padding: 20px 0; text-align: center;">⚠️ ${escapeHtml(message)}</div>`;
+            showMessage(message, false);
         }
 
         function handleDistribution() {
-            // Получаем и чистим участников
             let participantsRaw = participantsTextarea.value.split(/\r?\n/);
             let participants = participantsRaw.filter(p => p.trim().length > 0);
             
-            // Получаем роли и разворачиваем (х2, *3)
             let rolesRaw = rolesTextarea.value.split(/\r?\n/);
             let rolesFiltered = rolesRaw.filter(r => r.trim().length > 0);
             let expandedRoles = expandRoles(rolesFiltered);
             
-            // Проверки
             if (participants.length === 0) {
-                showError("Добавьте хотя бы одного участника (каждое имя с новой строки).");
+                showError("Добавьте хотя бы одного участника.");
                 return;
             }
             if (expandedRoles.length === 0) {
@@ -283,18 +392,42 @@
                 return;
             }
             if (participants.length !== expandedRoles.length) {
-                showError(`Число участников: ${participants.length}, а число ролей (после разворачивания): ${expandedRoles.length}. 
-                Они должны совпадать! Добавьте или уберите роли / участников.`);
+                showError(`Участников: ${participants.length}, а ролей: ${expandedRoles.length}. Они должны совпадать!`);
                 return;
             }
-            
-            // Всё хорошо — показываем
             showResult(participants, expandedRoles);
         }
 
+        function handleQuickRoles() {
+            let count = parseInt(playerCountInput.value);
+            if (isNaN(count) || count < 3 || count > 20) {
+                showError("Введите количество игроков от 3 до 20 (по вашей таблице).");
+                return;
+            }
+            
+            const rolesObj = rolesByCount[count];
+            if (!rolesObj) {
+                showError(`Для ${count} игроков нет данных в таблице. Доступно: 3–20.`);
+                return;
+            }
+            
+            const rolesString = rolesObjectToString(rolesObj);
+            rolesTextarea.value = rolesString;
+            showMessage(`✅ Подобраны роли для ${count} игроков по вашей таблице. Теперь введите имена и нажмите «Перемешать».`, true);
+        }
+
+        function handleClear() {
+            participantsTextarea.value = "";
+            rolesTextarea.value = "";
+            outputContainer.innerHTML = `<div style="color: #6c757d; padding: 20px 0; text-align: center;">Нажмите на кнопку — и здесь появится назначение ролей</div>`;
+            messageArea.style.display = 'none';
+        }
+
         generateBtn.addEventListener('click', handleDistribution);
+        clearBtn.addEventListener('click', handleClear);
+        quickRolesBtn.addEventListener('click', handleQuickRoles);
         
-        // Оставляем поля полностью пустыми при открытии
+        // Поля пустые при открытии
         participantsTextarea.value = "";
         rolesTextarea.value = "";
     })();
