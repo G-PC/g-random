@@ -213,6 +213,7 @@
     let currentAngle = 0;
     let spinning = false;
     let animFrame = null;
+    let finalResult = null; // Сохраняем результат до удаления
     
     function parseOptions() {
         return optionsInput.value.split(/\r?\n/).filter(opt => opt.trim().length > 0);
@@ -262,12 +263,23 @@
             ctx.fillText(text, r * 0.65, 5);
             ctx.restore();
         }
+        
+        // Рисуем маленький кружок в центре
+        ctx.beginPath();
+        ctx.arc(cx, cy, 15, 0, 2 * Math.PI);
+        ctx.fillStyle = '#ffffff';
+        ctx.fill();
+        ctx.strokeStyle = '#cbd5e1';
+        ctx.lineWidth = 2;
+        ctx.stroke();
     }
     
-    function getCurrentOption() {
+    function getCurrentOptionAtAngle(angle) {
         if (currentOptions.length === 0) return null;
+        // Стрелка всегда сверху (угол -PI/2)
         const arrowAngle = -Math.PI / 2;
-        let raw = (arrowAngle - currentAngle + 2 * Math.PI) % (2 * Math.PI);
+        // Вычисляем, какой сектор находится под стрелкой при данном угле поворота колеса
+        let raw = (arrowAngle - angle + 2 * Math.PI) % (2 * Math.PI);
         const step = (2 * Math.PI) / currentOptions.length;
         let idx = Math.floor(raw / step) % currentOptions.length;
         return currentOptions[idx];
@@ -290,12 +302,15 @@
         const duration = 2000;
         const startTime = performance.now();
         const startAngle = currentAngle;
-        const fullTurns = 6 + Math.random() * 4;
-        const targetDelta = fullTurns * 2 * Math.PI + Math.random() * 2 * Math.PI;
+        // Случайное количество полных оборотов (8-12) + случайный доворот
+        const fullTurns = 8 + Math.random() * 5;
+        const randomOffset = Math.random() * 2 * Math.PI;
+        const targetDelta = fullTurns * 2 * Math.PI + randomOffset;
         
         function animate(now) {
             const elapsed = now - startTime;
             let t = Math.min(1, elapsed / duration);
+            // Плавное замедление
             const ease = 1 - Math.pow(1 - t, 3);
             currentAngle = startAngle + targetDelta * ease;
             drawWheel();
@@ -303,20 +318,39 @@
             if (t < 1) {
                 animFrame = requestAnimationFrame(animate);
             } else {
-                currentAngle = (startAngle + targetDelta) % (2 * Math.PI);
+                // Фиксируем финальный угол
+                const finalAngle = (startAngle + targetDelta) % (2 * Math.PI);
+                currentAngle = finalAngle;
                 drawWheel();
+                
+                // Определяем результат ПОСЛЕ полной остановки
+                const result = getCurrentOptionAtAngle(currentAngle);
+                
                 spinning = false;
-                const result = getCurrentOption();
+                
                 if (result) {
+                    // Показываем результат
                     resultDisplay.textContent = result;
+                    
+                    // Добавляем в список выбывших
+                    eliminated.unshift(result);
+                    
+                    // Удаляем из текущих
                     const idx = currentOptions.indexOf(result);
                     if (idx !== -1) {
                         currentOptions.splice(idx, 1);
-                        eliminated.unshift(result);
                     }
+                    
+                    // Обновляем отображение
                     updateDisplay();
-                    if (currentOptions.length > 0) drawWheel();
-                    else resultDisplay.textContent = '🏆 Все выбыли!';
+                    
+                    // Перерисовываем колесо без выбывшего
+                    if (currentOptions.length > 0) {
+                        drawWheel();
+                    } else {
+                        resultDisplay.textContent = '🏆 Все выбыли!';
+                        drawWheel();
+                    }
                 }
                 animFrame = null;
             }
@@ -327,6 +361,7 @@
     }
     
     function resetGame() {
+        if (spinning) return;
         currentOptions = [...allOptions];
         eliminated = [];
         currentAngle = 0;
@@ -336,6 +371,7 @@
     }
     
     function updateWheel() {
+        if (spinning) return;
         allOptions = parseOptions();
         currentOptions = [...allOptions];
         eliminated = [];
@@ -349,6 +385,7 @@
         return str.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'})[m]);
     }
     
+    // Пример по умолчанию
     optionsInput.value = "Герман\nЭмир\nАртур\nАндрей\nМаксим";
     updateWheel();
     
