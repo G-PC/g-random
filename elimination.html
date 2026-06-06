@@ -27,10 +27,6 @@
             box-shadow: 0 12px 30px rgba(0,0,0,0.1);
             padding: 28px 32px;
         }
-        h1 {
-            font-size: 1.8rem;
-            margin: 0 0 8px 0;
-        }
         .back-btn {
             display: inline-block;
             background: #64748b;
@@ -43,6 +39,10 @@
         }
         .back-btn:hover {
             background: #475569;
+        }
+        h1 {
+            font-size: 1.8rem;
+            margin: 0 0 8px 0;
         }
         .two-columns {
             display: flex;
@@ -169,7 +169,7 @@
     
     <div class="two-columns">
         <div class="wheel-panel">
-            <div class="wheel-container" style="position: relative; display: inline-block;">
+            <div class="wheel-container">
                 <canvas id="wheelCanvas" width="500" height="500"></canvas>
                 <div class="pointer"></div>
             </div>
@@ -178,7 +178,7 @@
         </div>
         <div class="controls-panel">
             <label>📝 Варианты (каждый с новой строки)</label>
-            <textarea id="optionsInput" placeholder="Игрок 1&#10;Игрок 2&#10;Игрок 3&#10;Игрок 4"></textarea>
+            <textarea id="optionsInput" placeholder="Герман&#10;Эмир&#10;Артур&#10;Андрей&#10;Максим"></textarea>
             <button id="updateWheelBtn">🔄 Обновить колесо</button>
             
             <div class="result">
@@ -210,33 +210,32 @@
     let allOptions = [];
     let currentOptions = [];
     let eliminated = [];
-    let currentRotation = 0;
+    let currentAngle = 0;
     let spinning = false;
-    let animationId = null;
+    let animFrame = null;
     
     function parseOptions() {
-        let raw = optionsInput.value.split(/\r?\n/);
-        return raw.filter(opt => opt.trim().length > 0);
+        return optionsInput.value.split(/\r?\n/).filter(opt => opt.trim().length > 0);
     }
     
     function drawWheel() {
-        if (!canvas || !ctx) return;
-        const width = canvas.width;
-        const height = canvas.height;
-        const centerX = width / 2;
-        const centerY = height / 2;
-        const radius = width * 0.45;
+        if (!ctx) return;
+        const w = canvas.width;
+        const h = canvas.height;
+        const cx = w / 2;
+        const cy = h / 2;
+        const r = w * 0.45;
         
-        ctx.clearRect(0, 0, width, height);
+        ctx.clearRect(0, 0, w, h);
         
         if (currentOptions.length === 0) {
             ctx.fillStyle = '#e2e8f0';
             ctx.beginPath();
-            ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+            ctx.arc(cx, cy, r, 0, 2 * Math.PI);
             ctx.fill();
             ctx.fillStyle = '#64748b';
             ctx.font = 'bold 16px sans-serif';
-            ctx.fillText('Все выбыли!', centerX - 70, centerY);
+            ctx.fillText('Все выбыли!', cx - 70, cy);
             return;
         }
         
@@ -244,102 +243,93 @@
         const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD', '#F0E68C', '#87CEEB', '#FFB347', '#77DD77', '#FF9999', '#99CC99'];
         
         for (let i = 0; i < currentOptions.length; i++) {
-            const startAngle = i * angleStep + currentRotation;
-            const endAngle = (i + 1) * angleStep + currentRotation;
+            const start = i * angleStep + currentAngle;
+            const end = (i + 1) * angleStep + currentAngle;
             
             ctx.beginPath();
-            ctx.arc(centerX, centerY, radius, startAngle, endAngle);
-            ctx.lineTo(centerX, centerY);
+            ctx.arc(cx, cy, r, start, end);
+            ctx.lineTo(cx, cy);
             ctx.fillStyle = colors[i % colors.length];
             ctx.fill();
+            
             ctx.save();
-            ctx.translate(centerX, centerY);
-            ctx.rotate(startAngle + angleStep / 2);
+            ctx.translate(cx, cy);
+            ctx.rotate(start + angleStep / 2);
             ctx.fillStyle = '#1f2937';
             ctx.font = 'bold 14px sans-serif';
             let text = currentOptions[i];
             if (text.length > 20) text = text.slice(0, 17) + '...';
-            ctx.fillText(text, radius * 0.65, 5);
+            ctx.fillText(text, r * 0.65, 5);
             ctx.restore();
         }
     }
     
     function getCurrentOption() {
         if (currentOptions.length === 0) return null;
-        // Стрелка сверху (угол -90 градусов)
-        const pointerAngle = -Math.PI / 2;
-        const angleStep = (2 * Math.PI) / currentOptions.length;
-        let rawAngle = (pointerAngle - currentRotation + 2 * Math.PI) % (2 * Math.PI);
-        let index = Math.floor(rawAngle / angleStep) % currentOptions.length;
-        return currentOptions[index];
+        const arrowAngle = -Math.PI / 2;
+        let raw = (arrowAngle - currentAngle + 2 * Math.PI) % (2 * Math.PI);
+        const step = (2 * Math.PI) / currentOptions.length;
+        let idx = Math.floor(raw / step) % currentOptions.length;
+        return currentOptions[idx];
     }
     
     function updateDisplay() {
         remainingCountSpan.innerHTML = `🎯 Осталось: ${currentOptions.length}`;
-        
         if (eliminated.length === 0) {
             eliminatedListDiv.innerHTML = '<div style="color: #6c757d;">Пока никто не выбыл</div>';
         } else {
             eliminatedListDiv.innerHTML = eliminated.map(e => `<div class="eliminated-item">• ${escapeHtml(e)}</div>`).join('');
         }
-        
-        if (currentOptions.length === 0) {
-            resultDisplay.textContent = 'Игра окончена!';
-            spinBtn.disabled = true;
-        } else {
-            spinBtn.disabled = false;
-        }
+        spinBtn.disabled = currentOptions.length === 0;
     }
     
     function spinWheel() {
         if (spinning || currentOptions.length === 0) return;
         spinning = true;
-        const spinDuration = 2000;
-        const startTime = performance.now();
-        const startRotation = currentRotation;
-        const spins = 8 * Math.PI;
-        const targetRotation = startRotation + spins + Math.random() * 2 * Math.PI;
         
-        function animateSpin(now) {
+        const duration = 2000;
+        const startTime = performance.now();
+        const startAngle = currentAngle;
+        const fullTurns = 6 + Math.random() * 4;
+        const targetDelta = fullTurns * 2 * Math.PI + Math.random() * 2 * Math.PI;
+        
+        function animate(now) {
             const elapsed = now - startTime;
-            let t = Math.min(1, elapsed / spinDuration);
-            const easeOut = 1 - Math.pow(1 - t, 3);
-            currentRotation = startRotation + targetRotation * easeOut;
+            let t = Math.min(1, elapsed / duration);
+            const ease = 1 - Math.pow(1 - t, 3);
+            currentAngle = startAngle + targetDelta * ease;
             drawWheel();
             
             if (t < 1) {
-                animationId = requestAnimationFrame(animateSpin);
+                animFrame = requestAnimationFrame(animate);
             } else {
-                currentRotation = targetRotation % (2 * Math.PI);
+                currentAngle = (startAngle + targetDelta) % (2 * Math.PI);
                 drawWheel();
                 spinning = false;
                 const result = getCurrentOption();
                 if (result) {
                     resultDisplay.textContent = result;
-                    const index = currentOptions.indexOf(result);
-                    if (index !== -1) {
-                        currentOptions.splice(index, 1);
+                    const idx = currentOptions.indexOf(result);
+                    if (idx !== -1) {
+                        currentOptions.splice(idx, 1);
                         eliminated.unshift(result);
                     }
                     updateDisplay();
-                    if (currentOptions.length > 0) {
-                        drawWheel();
-                    } else {
-                        resultDisplay.textContent = '🏆 Все выбыли!';
-                        drawWheel();
-                    }
+                    if (currentOptions.length > 0) drawWheel();
+                    else resultDisplay.textContent = '🏆 Все выбыли!';
                 }
+                animFrame = null;
             }
         }
         
-        if (animationId) cancelAnimationFrame(animationId);
-        animationId = requestAnimationFrame(animateSpin);
+        if (animFrame) cancelAnimationFrame(animFrame);
+        animFrame = requestAnimationFrame(animate);
     }
     
     function resetGame() {
         currentOptions = [...allOptions];
         eliminated = [];
-        currentRotation = 0;
+        currentAngle = 0;
         resultDisplay.textContent = '—';
         updateDisplay();
         drawWheel();
@@ -349,14 +339,10 @@
         allOptions = parseOptions();
         currentOptions = [...allOptions];
         eliminated = [];
-        currentRotation = 0;
+        currentAngle = 0;
         resultDisplay.textContent = '—';
         updateDisplay();
         drawWheel();
-        
-        if (allOptions.length === 0) {
-            resultDisplay.textContent = '—';
-        }
     }
     
     function escapeHtml(str) {
@@ -370,8 +356,6 @@
     resetBtn.addEventListener('click', resetGame);
     updateWheelBtn.addEventListener('click', updateWheel);
     canvas.addEventListener('click', spinWheel);
-    
-    window.addEventListener('resize', () => drawWheel());
 </script>
 </body>
 </html>
