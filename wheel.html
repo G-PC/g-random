@@ -53,10 +53,15 @@
             flex: 1;
             min-width: 300px;
             text-align: center;
+            position: relative;
         }
         .controls-panel {
             flex: 0.8;
             min-width: 280px;
+        }
+        .wheel-container {
+            position: relative;
+            display: inline-block;
         }
         canvas {
             background: #f8fafc;
@@ -66,6 +71,28 @@
             max-width: 500px;
             height: auto;
             cursor: pointer;
+        }
+        .pointer {
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 20px solid transparent;
+            border-right: 20px solid transparent;
+            border-top: 50px solid #ef4444;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+            z-index: 10;
+        }
+        .pointer:after {
+            content: "▼";
+            position: absolute;
+            top: -48px;
+            left: -12px;
+            font-size: 24px;
+            color: #ef4444;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
         }
         textarea {
             width: 100%;
@@ -123,9 +150,6 @@
             margin: 12px 0;
             cursor: pointer;
         }
-        hr {
-            margin: 20px 0;
-        }
     </style>
 </head>
 <body>
@@ -135,7 +159,10 @@
     
     <div class="two-columns">
         <div class="wheel-panel">
-            <canvas id="wheelCanvas" width="500" height="500"></canvas>
+            <div class="wheel-container" style="position: relative; display: inline-block;">
+                <canvas id="wheelCanvas" width="500" height="500"></canvas>
+                <div class="pointer"></div>
+            </div>
             <button id="spinBtn">🔀 Крутить колесо</button>
         </div>
         <div class="controls-panel">
@@ -144,7 +171,7 @@
             
             <div class="checkbox-label">
                 <input type="checkbox" id="removeAfterSpin">
-                <label>🗑️ Удалять выпавший вариант (режим на выбывание)</label>
+                <label>🗑️ Удалять выпавший вариант</label>
             </div>
             
             <button id="updateWheelBtn">🔄 Обновить колесо</button>
@@ -226,20 +253,15 @@
             ctx.fillText(text, radius * 0.65, 5);
             ctx.restore();
         }
-        
-        // Стрелка
-        ctx.beginPath();
-        ctx.moveTo(centerX + radius + 15, centerY - 12);
-        ctx.lineTo(centerX + radius + 15, centerY + 12);
-        ctx.lineTo(centerX + radius + 35, centerY);
-        ctx.fillStyle = '#ef4444';
-        ctx.fill();
     }
     
     function getCurrentOption() {
         if (options.length === 0) return null;
+        // Стрелка сверху (угол -90 градусов)
+        const pointerAngle = -Math.PI / 2;
+        // Находим, какой сектор содержит угол стрелки с учётом вращения
         const angleStep = (2 * Math.PI) / options.length;
-        let rawAngle = (2 * Math.PI - (currentRotation % (2 * Math.PI))) % (2 * Math.PI);
+        let rawAngle = (pointerAngle - currentRotation + 2 * Math.PI) % (2 * Math.PI);
         let index = Math.floor(rawAngle / angleStep) % options.length;
         return options[index];
     }
@@ -317,7 +339,6 @@
     
     spinBtn.addEventListener('click', spinWheel);
     updateWheelBtn.addEventListener('click', updateWheel);
-    
     canvas.addEventListener('click', spinWheel);
     
     window.addEventListener('resize', () => drawWheel());
