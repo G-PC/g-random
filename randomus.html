@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Рандомус — Генератор случайных чисел</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+            background: #f0f2f5;
+            margin: 0;
+            padding: 24px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            background: white;
+            border-radius: 28px;
+            box-shadow: 0 12px 30px rgba(0,0,0,0.1);
+            padding: 28px 32px;
+        }
+        .back-btn {
+            display: inline-block;
+            background: #64748b;
+            color: white;
+            text-decoration: none;
+            padding: 8px 20px;
+            border-radius: 40px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+        }
+        .back-btn:hover {
+            background: #475569;
+        }
+        h1 {
+            font-size: 1.8rem;
+            margin: 0 0 8px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .sub {
+            color: #4b5563;
+            margin-bottom: 24px;
+            font-size: 0.95rem;
+        }
+        .two-columns {
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+        .settings-panel {
+            flex: 1;
+            min-width: 280px;
+        }
+        .result-panel {
+            flex: 1;
+            min-width: 280px;
+        }
+        .param-group {
+            margin-bottom: 20px;
+        }
+        label {
+            font-weight: 600;
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            color: #1f2937;
+        }
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border-radius: 16px;
+            border: 1px solid #cbd5e1;
+            font-family: inherit;
+            font-size: 1rem;
+            background: #fefefe;
+        }
+        input:focus, select:focus {
+            outline: none;
+            border-color: #1e88e5;
+            box-shadow: 0 0 0 2px rgba(30,136,229,0.2);
+        }
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 16px 0;
+        }
+        .checkbox-group input {
+            width: auto;
+            transform: scale(1.2);
+        }
+        button {
+            background: #1e88e5;
+            color: white;
+            border: none;
+            padding: 14px 24px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 40px;
+            cursor: pointer;
+            width: 100%;
+            transition: 0.15s;
+            margin-top: 8px;
+        }
+        button:hover {
+            background: #0b5e8a;
+        }
+        .clear-btn {
+            background: #64748b;
+            margin-top: 12px;
+        }
+        .clear-btn:hover {
+            background: #475569;
+        }
+        .result-box {
+            background: #f8fafc;
+            border-radius: 20px;
+            padding: 20px;
+            border: 1px solid #e2e8f0;
+            min-height: 300px;
+        }
+        .result-numbers {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #1e40af;
+            word-break: break-word;
+            line-height: 1.3;
+            margin-bottom: 16px;
+        }
+        .stats {
+            background: #e0e7ff;
+            padding: 12px;
+            border-radius: 16px;
+            margin: 16px 0;
+            font-size: 0.9rem;
+        }
+        .history {
+            margin-top: 20px;
+            max-height: 200px;
+            overflow-y: auto;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 12px;
+        }
+        .history-title {
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        .history-item {
+            background: #f1f5f9;
+            margin: 5px 0;
+            padding: 8px 12px;
+            border-radius: 10px;
+            font-family: monospace;
+            font-size: 0.85rem;
+        }
+        .warning {
+            background: #fffbeb;
+            border-left: 4px solid #f59e0b;
+            padding: 12px 16px;
+            border-radius: 16px;
+            margin-top: 16px;
+            font-size: 0.85rem;
+            color: #92400e;
+        }
+        footer {
+            font-size: 0.7rem;
+            text-align: center;
+            color: #6c757d;
+            margin-top: 24px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <a href="index.html" class="back-btn">← На главную</a>
+    <h1>🎲 Рандомус</h1>
+    <div class="sub">Генератор случайных чисел для розыгрышей, игр и решений</div>
+    
+    <div class="two-columns">
+        <div class="settings-panel">
+            <div class="param-group">
+                <label>📉 От (минимум)</label>
+                <input type="number" id="minVal" value="1" step="1">
+            </div>
+            <div class="param-group">
+                <label>📈 До (максимум)</label>
+                <input type="number" id="maxVal" value="100" step="1">
+            </div>
+            <div class="param-group">
+                <label>🔢 Количество чисел</label>
+                <input type="number" id="countVal" value="1" min="1" max="1000" step="1">
+            </div>
+            <div class="checkbox-group">
+                <input type="checkbox" id="uniqueCheckbox">
+                <label style="margin:0;">✨ Без повторений (уникальные числа)</label>
+            </div>
+            <div class="param-group">
+                <label>📊 Сортировка</label>
+                <select id="sortSelect">
+                    <option value="none">Без сортировки</option>
+                    <option value="asc">По возрастанию</option>
+                    <option value="desc">По убыванию</option>
+                </select>
+            </div>
+            <button id="generateBtn">🎲 Сгенерировать</button>
+            <button id="clearHistoryBtn" class="clear-btn">🗑️ Очистить историю</button>
+        </div>
+        
+        <div class="result-panel">
+            <div class="result-box">
+                <div style="font-weight: 600; margin-bottom: 8px;">✨ Результат генерации</div>
+                <div id="resultNumbers" class="result-numbers">—</div>
+                <div id="statsArea" class="stats"></div>
+                <div id="warningArea" class="warning" style="display: none;"></div>
+                <div class="history">
+                    <div class="history-title">📜 История генераций</div>
+                    <div id="historyList">Пока пусто</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <footer>Генератор использует псевдослучайные алгоритмы. Для розыгрышей сохраняйте скриншот результата.</footer>
+</div>
+
+<script>
+    // DOM элементы
+    const minInput = document.getElementById('minVal');
+    const maxInput = document.getElementById('maxVal');
+    const countInput = document.getElementById('countVal');
+    const uniqueCheckbox = document.getElementById('uniqueCheckbox');
+    const sortSelect = document.getElementById('sortSelect');
+    const generateBtn = document.getElementById('generateBtn');
+    const clearHistoryBtn = document.getElementById('clearHistoryBtn');
+    const resultNumbersDiv = document.getElementById('resultNumbers');
+    const statsArea = document.getElementById('statsArea');
+    const warningArea = document.getElementById('warningArea');
+    const historyListDiv = document.getElementById('historyList');
+    
+    let history = []; // Храним историю [{ numbers, min, max, count, unique, sort }]
+    
+    function showWarning(message) {
+        warningArea.textContent = message;
+        warningArea.style.display = 'block';
+        setTimeout(() => {
+            warningArea.style.display = 'none';
+        }, 4000);
+    }
+    
+    function generateNumbers() {
+        // Получаем и проверяем значения
+        let min = parseInt(minInput.value);
+        let max = parseInt(maxInput.value);
+        let count = parseInt(countInput.value);
+        let unique = uniqueCheckbox.checked;
+        let sort = sortSelect.value;
+        
+        // Валидация
+        if (isNaN(min) || isNaN(max) || isNaN(count)) {
+            showWarning('Пожалуйста, заполните все поля числами.');
+            return;
+        }
+        if (min >= max) {
+            showWarning('Минимальное значение должно быть меньше максимального.');
+            return;
+        }
+        if (count < 1) {
+            showWarning('Количество чисел должно быть не менее 1.');
+            return;
+        }
+        if (unique && count > (max - min + 1)) {
+            showWarning(`Невозможно сгенерировать ${count} уникальных чисел в диапазоне от ${min} до ${max}. Уменьшите количество или отключите «Без повторений».`);
+            return;
+        }
+        if (count > 1000) {
+            showWarning('Максимальное количество чисел — 1000. Уменьшите значение.');
+            return;
+        }
+        
+        // Генерация
+        let numbers = [];
+        if (unique) {
+            // Уникальные числа — используем перемешивание диапазона
+            let allNumbers = [];
+            for (let i = min; i <= max; i++) allNumbers.push(i);
+            // Перемешивание (Fisher-Yates)
+            for (let i = allNumbers.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [allNumbers[i], allNumbers[j]] = [allNumbers[j], allNumbers[i]];
+            }
+            numbers = allNumbers.slice(0, count);
+        } else {
+            // С повторениями
+            for (let i = 0; i < count; i++) {
+                let num = Math.floor(Math.random() * (max - min + 1)) + min;
+                numbers.push(num);
+            }
+        }
+        
+        // Сортировка
+        if (sort === 'asc') {
+            numbers.sort((a, b) => a - b);
+        } else if (sort === 'desc') {
+            numbers.sort((a, b) => b - a);
+        }
+        
+        // Отображение результата
+        let resultText = numbers.join(', ');
+        resultNumbersDiv.innerHTML = resultText;
+        
+        // Статистика
+        let statsText = `📊 Диапазон: ${min}–${max} | Количество: ${count} | Уникальные: ${unique ? 'Да' : 'Нет'}`;
+        if (unique && numbers.length > 0) {
+            let minNum = Math.min(...numbers);
+            let maxNum = Math.max(...numbers);
+            statsText += ` | Min: ${minNum} | Max: ${maxNum}`;
+        }
+        statsArea.innerHTML = statsText;
+        
+        // Сохраняем в историю
+        let historyItem = {
+            numbers: numbers,
+            min: min,
+            max: max,
+            count: count,
+            unique: unique,
+            sort: sort,
+            timestamp: new Date().toLocaleTimeString()
+        };
+        history.unshift(historyItem);
+        if (history.length > 20) history.pop();
+        updateHistoryDisplay();
+    }
+    
+    function updateHistoryDisplay() {
+        if (history.length === 0) {
+            historyListDiv.innerHTML = 'Пока пусто';
+            return;
+        }
+        let html = '';
+        for (let item of history) {
+            let numbersPreview = item.numbers.slice(0, 5).join(', ');
+            if (item.numbers.length > 5) numbersPreview += '...';
+            html += `<div class="history-item">[${item.timestamp}] ${numbersPreview} (${item.min}–${item.max}, ${item.count} шт.)</div>`;
+        }
+        historyListDiv.innerHTML = html;
+    }
+    
+    function clearHistory() {
+        history = [];
+        updateHistoryDisplay();
+        showWarning('История очищена.');
+    }
+    
+    generateBtn.addEventListener('click', generateNumbers);
+    clearHistoryBtn.addEventListener('click', clearHistory);
+    
+    // Генерируем пример при загрузке
+    generateNumbers();
+</script>
+</body>
+</html>
