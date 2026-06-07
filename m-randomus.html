@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-    <title>Рандомус — Мобильный</title>
+    <title>Генератор случайных чисел</title>
     <style>
         * {
             box-sizing: border-box;
@@ -71,7 +71,6 @@
             border-color: #1e88e5;
             box-shadow: 0 0 0 3px rgba(30,136,229,0.2);
         }
-        /* Переделанный чекбокс */
         .unique-wrapper {
             margin: 16px 0;
         }
@@ -202,7 +201,7 @@
 <body>
 <div class="card">
     <a href="index.html" class="back-btn">← На главную</a>
-    <h1>🎲 Рандомус</h1>
+    <h1>🎲 Генератор случайных чисел</h1>
     <div class="sub">Генератор случайных чисел</div>
     
     <div class="param-group">
@@ -218,7 +217,6 @@
         <input type="number" id="countVal" value="1" min="1" max="1000" step="1">
     </div>
     
-    <!-- Переделанный чекбокс в виде кнопки -->
     <div class="unique-wrapper">
         <div id="uniqueButton" class="unique-button">
             <span class="unique-text">✨ Без повторений (уникальные числа)</span>
@@ -269,7 +267,6 @@
     
     let history = [];
     
-    // Обработка кастомного чекбокса
     function updateUniqueUI() {
         if (uniqueCheckbox.checked) {
             uniqueStatus.textContent = '✅';
