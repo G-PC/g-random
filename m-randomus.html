@@ -71,16 +71,40 @@
             border-color: #1e88e5;
             box-shadow: 0 0 0 3px rgba(30,136,229,0.2);
         }
-        .checkbox-group {
-            display: flex;
-            align-items: center;
-            gap: 12px;
+        /* Переделанный чекбокс */
+        .unique-wrapper {
             margin: 16px 0;
         }
-        .checkbox-group input {
-            width: auto;
-            transform: scale(1.2);
-            margin: 0;
+        .unique-button {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            background: #f1f5f9;
+            border: 1px solid #cbd5e1;
+            border-radius: 14px;
+            padding: 14px 16px;
+            cursor: pointer;
+            transition: 0.1s;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .unique-button:active {
+            background: #e2e8f0;
+            transform: scale(0.98);
+        }
+        .unique-text {
+            font-weight: 500;
+            font-size: 0.95rem;
+            color: #1f2937;
+        }
+        .unique-status {
+            font-size: 1.2rem;
+        }
+        .unique-status.active {
+            color: #1e88e5;
+        }
+        .hidden-checkbox {
+            display: none;
         }
         button {
             background: #1e88e5;
@@ -193,10 +217,16 @@
         <label>🔢 Количество чисел</label>
         <input type="number" id="countVal" value="1" min="1" max="1000" step="1">
     </div>
-    <div class="checkbox-group">
-        <input type="checkbox" id="uniqueCheckbox">
-        <label style="margin:0;">✨ Без повторений (уникальные числа)</label>
+    
+    <!-- Переделанный чекбокс в виде кнопки -->
+    <div class="unique-wrapper">
+        <div id="uniqueButton" class="unique-button">
+            <span class="unique-text">✨ Без повторений (уникальные числа)</span>
+            <span id="uniqueStatus" class="unique-status">❌</span>
+        </div>
+        <input type="checkbox" id="uniqueCheckbox" class="hidden-checkbox">
     </div>
+    
     <div class="param-group">
         <label>📊 Сортировка</label>
         <select id="sortSelect">
@@ -227,6 +257,8 @@
     const maxInput = document.getElementById('maxVal');
     const countInput = document.getElementById('countVal');
     const uniqueCheckbox = document.getElementById('uniqueCheckbox');
+    const uniqueButton = document.getElementById('uniqueButton');
+    const uniqueStatus = document.getElementById('uniqueStatus');
     const sortSelect = document.getElementById('sortSelect');
     const generateBtn = document.getElementById('generateBtn');
     const clearHistoryBtn = document.getElementById('clearHistoryBtn');
@@ -236,6 +268,24 @@
     const historyListDiv = document.getElementById('historyList');
     
     let history = [];
+    
+    // Обработка кастомного чекбокса
+    function updateUniqueUI() {
+        if (uniqueCheckbox.checked) {
+            uniqueStatus.textContent = '✅';
+            uniqueStatus.classList.add('active');
+        } else {
+            uniqueStatus.textContent = '❌';
+            uniqueStatus.classList.remove('active');
+        }
+    }
+    
+    uniqueButton.addEventListener('click', function() {
+        uniqueCheckbox.checked = !uniqueCheckbox.checked;
+        updateUniqueUI();
+    });
+    
+    updateUniqueUI();
     
     function showWarning(message) {
         warningArea.textContent = message;
@@ -340,7 +390,6 @@
     generateBtn.addEventListener('click', generateNumbers);
     clearHistoryBtn.addEventListener('click', clearHistory);
     
-    // Пустое состояние при загрузке
     resultNumbersDiv.innerHTML = '—';
     statsArea.innerHTML = '';
 </script>
