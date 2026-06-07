@@ -232,7 +232,6 @@
 </div>
 
 <script>
-    // DOM элементы
     const minInput = document.getElementById('minVal');
     const maxInput = document.getElementById('maxVal');
     const countInput = document.getElementById('countVal');
@@ -245,7 +244,7 @@
     const warningArea = document.getElementById('warningArea');
     const historyListDiv = document.getElementById('historyList');
     
-    let history = []; // Храним историю [{ numbers, min, max, count, unique, sort }]
+    let history = [];
     
     function showWarning(message) {
         warningArea.textContent = message;
@@ -256,14 +255,12 @@
     }
     
     function generateNumbers() {
-        // Получаем и проверяем значения
         let min = parseInt(minInput.value);
         let max = parseInt(maxInput.value);
         let count = parseInt(countInput.value);
         let unique = uniqueCheckbox.checked;
         let sort = sortSelect.value;
         
-        // Валидация
         if (isNaN(min) || isNaN(max) || isNaN(count)) {
             showWarning('Пожалуйста, заполните все поля числами.');
             return;
@@ -285,38 +282,30 @@
             return;
         }
         
-        // Генерация
         let numbers = [];
         if (unique) {
-            // Уникальные числа — используем перемешивание диапазона
             let allNumbers = [];
             for (let i = min; i <= max; i++) allNumbers.push(i);
-            // Перемешивание (Fisher-Yates)
             for (let i = allNumbers.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
                 [allNumbers[i], allNumbers[j]] = [allNumbers[j], allNumbers[i]];
             }
             numbers = allNumbers.slice(0, count);
         } else {
-            // С повторениями
             for (let i = 0; i < count; i++) {
                 let num = Math.floor(Math.random() * (max - min + 1)) + min;
                 numbers.push(num);
             }
         }
         
-        // Сортировка
         if (sort === 'asc') {
             numbers.sort((a, b) => a - b);
         } else if (sort === 'desc') {
             numbers.sort((a, b) => b - a);
         }
         
-        // Отображение результата
-        let resultText = numbers.join(', ');
-        resultNumbersDiv.innerHTML = resultText;
+        resultNumbersDiv.innerHTML = numbers.join(', ');
         
-        // Статистика
         let statsText = `📊 Диапазон: ${min}–${max} | Количество: ${count} | Уникальные: ${unique ? 'Да' : 'Нет'}`;
         if (unique && numbers.length > 0) {
             let minNum = Math.min(...numbers);
@@ -325,9 +314,8 @@
         }
         statsArea.innerHTML = statsText;
         
-        // Сохраняем в историю
         let historyItem = {
-            numbers: numbers,
+            numbers: numbers.slice(0, 10),
             min: min,
             max: max,
             count: count,
@@ -347,7 +335,7 @@
         }
         let html = '';
         for (let item of history) {
-            let numbersPreview = item.numbers.slice(0, 5).join(', ');
+            let numbersPreview = item.numbers.join(', ');
             if (item.numbers.length > 5) numbersPreview += '...';
             html += `<div class="history-item">[${item.timestamp}] ${numbersPreview} (${item.min}–${item.max}, ${item.count} шт.)</div>`;
         }
@@ -363,8 +351,9 @@
     generateBtn.addEventListener('click', generateNumbers);
     clearHistoryBtn.addEventListener('click', clearHistory);
     
-    // Генерируем пример при загрузке
-    generateNumbers();
+    // Оставляем поля пустыми без авто-генерации
+    resultNumbersDiv.innerHTML = '—';
+    statsArea.innerHTML = '';
 </script>
 </body>
 </html>
