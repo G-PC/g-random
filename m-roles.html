@@ -192,184 +192,210 @@
     </style>
 </head>
 <body>
-<div class="card">
-    <a href="index.html" class="back-btn">← На главную</a>
-    <h1>🎲 Рандомайзер ролей</h1>
-
-    <div class="quick-panel">
-        <h3>📊 Быстрый набор ролей</h3>
-        <div class="quick-row">
-            <div class="field">
-                <label>👥 Количество игроков</label>
-                <input type="number" id="playerCount" min="3" max="20" value="10" step="1">
-            </div>
-            <div class="field">
-                <button id="quickRolesBtn">🎭 Подобрать</button>
-            </div>
-        </div>
-    </div>
-
-    <label>👥 Участники (каждый с новой строки)</label>
-    <textarea id="participants" rows="4" placeholder="Герман&#10;Эмир&#10;Артур&#10;Андрей"></textarea>
-
-    <label>🎭 Роли (можно с множителем: «Мафия х2»)</label>
-    <textarea id="roles" rows="4" placeholder="Мафия х2&#10;Доктор&#10;Комиссар"></textarea>
-    <div class="hint">📌 Поддерживается формат: «Роль х2», «Роль * 3»</div>
-
-    <div class="button-group">
-        <button id="generateBtn">🔀 Перемешать и раздать</button>
-        <button id="clearBtn" class="btn-secondary">🗑️ Очистить</button>
-    </div>
-
-    <div class="result-box">
-        <div class="result-title">📋 Результат</div>
-        <div id="outputContainer">
-            <div style="color: #6c757d; padding: 16px 0; text-align: center;">Нажмите на кнопку 👆</div>
-        </div>
-        <div id="messageArea" style="display: none;" class="warning"></div>
-    </div>
-</div>
-
-<script>
-    (function() {
-        const rolesByCount = {
-            3: { "Мирный житель": 0, "Мафия": 1, "Комиссар": 1, "Доктор": 1 },
-            4: { "Мирный житель": 0, "Мафия": 1, "Комиссар": 1, "Доктор": 1, "Детектив": 1 },
-            5: { "Мирный житель": 1, "Мафия": 1, "Комиссар": 1, "Доктор": 1, "Детектив": 1 },
-            6: { "Мирный житель": 2, "Мафия": 1, "Комиссар": 1, "Доктор": 1, "Детектив": 1 },
-            7: { "Мирный житель": 2, "Мафия": 2, "Комиссар": 1, "Доктор": 1, "Детектив": 1 },
-            8: { "Мирный житель": 2, "Мафия": 2, "Комиссар": 1, "Доктор": 1, "Детектив": 1, "Любовница": 1 },
-            9: { "Мирный житель": 3, "Мафия": 2, "Комиссар": 1, "Доктор": 1, "Детектив": 1, "Любовница": 1 },
-            10: { "Мирный житель": 3, "Мафия": 2, "Комиссар": 1, "Доктор": 2, "Детектив": 1, "Любовница": 1 },
-            11: { "Мирный житель": 3, "Мафия": 3, "Комиссар": 1, "Доктор": 1, "Детектив": 1, "Любовница": 1, "Студент": 1 },
-            12: { "Мирный житель": 3, "Мафия": 3, "Комиссар": 1, "Доктор": 1, "Детектив": 1, "Любовница": 1, "Студент": 1, "Ангел-хранитель": 1 },
-            13: { "Мирный житель": 2, "Мафия": 3, "Дон": 1, "Комиссар": 1, "Доктор": 1, "Детектив": 1, "Любовница": 1, "Студент": 2, "Ангел-хранитель": 1 },
-            14: { "Мирный житель": 3, "Мафия": 3, "Дон": 1, "Комиссар": 1, "Доктор": 1, "Детектив": 1, "Любовница": 1, "Студент": 2, "Ангел-хранитель": 1 },
-            15: { "Мирный житель": 3, "Мафия": 3, "Дон": 1, "Оборотень": 1, "Комиссар": 1, "Доктор": 1, "Детектив": 1, "Любовница": 1, "Студент": 2, "Ангел-хранитель": 1 },
-            16: { "Мирный житель": 3, "Мафия": 3, "Дон": 1, "Оборотень": 1, "Комиссар": 1, "Доктор": 1, "Детектив": 1, "Любовница": 1, "Студент": 2, "Ангел-хранитель": 1, "Маньяк": 1 },
-            17: { "Мирный житель": 4, "Мафия": 4, "Дон": 1, "Оборотень": 1, "Комиссар": 1, "Доктор": 1, "Детектив": 1, "Любовница": 1, "Студент": 1, "Ангел-хранитель": 1, "Маньяк": 1 },
-            18: { "Мирный житель": 4, "Мафия": 4, "Дон": 1, "Оборотень": 1, "Комиссар": 1, "Доктор": 1, "Детектив": 1, "Любовница": 1, "Студент": 2, "Ангел-хранитель": 1, "Маньяк": 1 },
-            19: { "Мирный житель": 4, "Мафия": 4, "Дон": 1, "Оборотень": 1, "Лунатик": 1, "Комиссар": 1, "Доктор": 1, "Детектив": 1, "Любовница": 1, "Студент": 2, "Ангел-хранитель": 1, "Маньяк": 1 },
-            20: { "Мирный житель": 4, "Мафия": 4, "Дон": 1, "Оборотень": 1, "Лунатик": 1, "Зеркало": 1, "Комиссар": 1, "Доктор": 1, "Детектив": 1, "Любовница": 1, "Студент": 2, "Ангел-хранитель": 1, "Маньяк": 1 }
-        };
-
-        function rolesObjectToString(rolesObj) {
-            let lines = [];
-            for (let [role, count] of Object.entries(rolesObj)) {
-                if (count === 0) continue;
-                if (count === 1) lines.push(role);
-                else lines.push(`${role} х${count}`);
+    <!-- ПРОВЕРКА ИНТЕРНЕТА -->
+    <script>
+        (function() {
+            function showOfflinePage() {
+                document.body.innerHTML = '';
+                document.body.style.margin = '0';
+                document.body.style.padding = '0';
+                const div = document.createElement('div');
+                div.style.cssText = 'display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 100vh; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; text-align: center; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;';
+                div.innerHTML = `
+                    <div style="font-size: 4rem; margin-bottom: 20px;">📡</div>
+                    <h1 style="font-size: 1.8rem; margin-bottom: 12px;">Нет соединения</h1>
+                    <p style="max-width: 280px; opacity: 0.9; margin-bottom: 24px;">Пожалуйста, проверьте интернет-подключение и попробуйте снова.</p>
+                    <button id="reloadBtn" style="background: white; color: #667eea; border: none; padding: 12px 28px; border-radius: 40px; font-size: 1rem; font-weight: 600; cursor: pointer;">Обновить</button>
+                    <p style="margin-top: 24px; font-size: 0.8rem; opacity: 0.7;">Некоторые функции могут быть недоступны без интернета</p>
+                `;
+                document.body.appendChild(div);
+                const btn = document.getElementById('reloadBtn');
+                if (btn) btn.onclick = () => location.reload();
             }
-            return lines.join('\n');
-        }
+            if (!navigator.onLine) showOfflinePage();
+            window.addEventListener('offline', () => showOfflinePage());
+            window.addEventListener('online', () => location.reload());
+        })();
+    </script>
 
-        function expandRoles(rolesArray) {
-            const expanded = [];
-            for (let raw of rolesArray) {
-                let trimmed = raw.trim();
-                if (trimmed === "") continue;
-                let match = trimmed.match(/^(.*?)\s*[хx*]\s*(\d+)$/i);
-                if (match) {
-                    let roleName = match[1].trim();
-                    let count = parseInt(match[2], 10);
-                    if (isNaN(count) || count <= 0) expanded.push(trimmed);
-                    else for (let i = 0; i < count; i++) expanded.push(roleName);
-                } else {
-                    expanded.push(trimmed);
+    <div class="card">
+        <a href="index.html" class="back-btn">← На главную</a>
+        <h1>🎲 Рандомайзер ролей</h1>
+
+        <div class="quick-panel">
+            <h3>📊 Быстрый набор ролей</h3>
+            <div class="quick-row">
+                <div class="field">
+                    <label>👥 Количество игроков</label>
+                    <input type="number" id="playerCount" min="3" max="20" value="10" step="1">
+                </div>
+                <div class="field">
+                    <button id="quickRolesBtn">🎭 Подобрать</button>
+                </div>
+            </div>
+        </div>
+
+        <label>👥 Участники (каждый с новой строки)</label>
+        <textarea id="participants" rows="4" placeholder="Герман&#10;Эмир&#10;Артур&#10;Андрей"></textarea>
+
+        <label>🎭 Роли (можно с множителем: «Мафия х2»)</label>
+        <textarea id="roles" rows="4" placeholder="Мафия х2&#10;Доктор&#10;Комиссар"></textarea>
+        <div class="hint">📌 Поддерживается формат: «Роль х2», «Роль * 3»</div>
+
+        <div class="button-group">
+            <button id="generateBtn">🔀 Перемешать и раздать</button>
+            <button id="clearBtn" class="btn-secondary">🗑️ Очистить</button>
+        </div>
+
+        <div class="result-box">
+            <div class="result-title">📋 Результат</div>
+            <div id="outputContainer">
+                <div style="color: #6c757d; padding: 16px 0; text-align: center;">Нажмите на кнопку 👆</div>
+            </div>
+            <div id="messageArea" style="display: none;" class="warning"></div>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            const rolesByCount = {
+                3: { "Мирный житель": 0, "Мафия": 1, "Комиссар": 1, "Доктор": 1 },
+                4: { "Мирный житель": 0, "Мафия": 1, "Комиссар": 1, "Доктор": 1, "Детектив": 1 },
+                5: { "Мирный житель": 1, "Мафия": 1, "Комиссар": 1, "Доктор": 1, "Детектив": 1 },
+                6: { "Мирный житель": 2, "Мафия": 1, "Комиссар": 1, "Доктор": 1, "Детектив": 1 },
+                7: { "Мирный житель": 2, "Мафия": 2, "Комиссар": 1, "Доктор": 1, "Детектив": 1 },
+                8: { "Мирный житель": 2, "Мафия": 2, "Комиссар": 1, "Доктор": 1, "Детектив": 1, "Любовница": 1 },
+                9: { "Мирный житель": 3, "Мафия": 2, "Комиссар": 1, "Доктор": 1, "Детектив": 1, "Любовница": 1 },
+                10: { "Мирный житель": 3, "Мафия": 2, "Комиссар": 1, "Доктор": 2, "Детектив": 1, "Любовница": 1 },
+                11: { "Мирный житель": 3, "Мафия": 3, "Комиссар": 1, "Доктор": 1, "Детектив": 1, "Любовница": 1, "Студент": 1 },
+                12: { "Мирный житель": 3, "Мафия": 3, "Комиссар": 1, "Доктор": 1, "Детектив": 1, "Любовница": 1, "Студент": 1, "Ангел-хранитель": 1 },
+                13: { "Мирный житель": 2, "Мафия": 3, "Дон": 1, "Комиссар": 1, "Доктор": 1, "Детектив": 1, "Любовница": 1, "Студент": 2, "Ангел-хранитель": 1 },
+                14: { "Мирный житель": 3, "Мафия": 3, "Дон": 1, "Комиссар": 1, "Доктор": 1, "Детектив": 1, "Любовница": 1, "Студент": 2, "Ангел-хранитель": 1 },
+                15: { "Мирный житель": 3, "Мафия": 3, "Дон": 1, "Оборотень": 1, "Комиссар": 1, "Доктор": 1, "Детектив": 1, "Любовница": 1, "Студент": 2, "Ангел-хранитель": 1 },
+                16: { "Мирный житель": 3, "Мафия": 3, "Дон": 1, "Оборотень": 1, "Комиссар": 1, "Доктор": 1, "Детектив": 1, "Любовница": 1, "Студент": 2, "Ангел-хранитель": 1, "Маньяк": 1 },
+                17: { "Мирный житель": 4, "Мафия": 4, "Дон": 1, "Оборотень": 1, "Комиссар": 1, "Доктор": 1, "Детектив": 1, "Любовница": 1, "Студент": 1, "Ангел-хранитель": 1, "Маньяк": 1 },
+                18: { "Мирный житель": 4, "Мафия": 4, "Дон": 1, "Оборотень": 1, "Комиссар": 1, "Доктор": 1, "Детектив": 1, "Любовница": 1, "Студент": 2, "Ангел-хранитель": 1, "Маньяк": 1 },
+                19: { "Мирный житель": 4, "Мафия": 4, "Дон": 1, "Оборотень": 1, "Лунатик": 1, "Комиссар": 1, "Доктор": 1, "Детектив": 1, "Любовница": 1, "Студент": 2, "Ангел-хранитель": 1, "Маньяк": 1 },
+                20: { "Мирный житель": 4, "Мафия": 4, "Дон": 1, "Оборотень": 1, "Лунатик": 1, "Зеркало": 1, "Комиссар": 1, "Доктор": 1, "Детектив": 1, "Любовница": 1, "Студент": 2, "Ангел-хранитель": 1, "Маньяк": 1 }
+            };
+
+            function rolesObjectToString(rolesObj) {
+                let lines = [];
+                for (let [role, count] of Object.entries(rolesObj)) {
+                    if (count === 0) continue;
+                    if (count === 1) lines.push(role);
+                    else lines.push(`${role} х${count}`);
                 }
+                return lines.join('\n');
             }
-            return expanded;
-        }
 
-        function shuffleArray(arr) {
-            const a = [...arr];
-            for (let i = a.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [a[i], a[j]] = [a[j], a[i]];
+            function expandRoles(rolesArray) {
+                const expanded = [];
+                for (let raw of rolesArray) {
+                    let trimmed = raw.trim();
+                    if (trimmed === "") continue;
+                    let match = trimmed.match(/^(.*?)\s*[хx*]\s*(\d+)$/i);
+                    if (match) {
+                        let roleName = match[1].trim();
+                        let count = parseInt(match[2], 10);
+                        if (isNaN(count) || count <= 0) expanded.push(trimmed);
+                        else for (let i = 0; i < count; i++) expanded.push(roleName);
+                    } else {
+                        expanded.push(trimmed);
+                    }
+                }
+                return expanded;
             }
-            return a;
-        }
 
-        function escapeHtml(str) {
-            return str.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'})[m]);
-        }
-
-        const participantsTextarea = document.getElementById('participants');
-        const rolesTextarea = document.getElementById('roles');
-        const generateBtn = document.getElementById('generateBtn');
-        const clearBtn = document.getElementById('clearBtn');
-        const quickRolesBtn = document.getElementById('quickRolesBtn');
-        const playerCountInput = document.getElementById('playerCount');
-        const outputContainer = document.getElementById('outputContainer');
-        const messageArea = document.getElementById('messageArea');
-
-        function showMessage(text, isSuccess = false) {
-            messageArea.innerText = text;
-            messageArea.style.display = 'block';
-            if (isSuccess) messageArea.classList.add('success');
-            else messageArea.classList.remove('success');
-            setTimeout(() => {
-                if (messageArea.innerText === text) messageArea.style.display = 'none';
-            }, 3000);
-        }
-
-        function showResult(participantsList, rolesList) {
-            const shuffledRoles = shuffleArray(rolesList);
-            const pairs = participantsList.map((participant, idx) => ({ participant, role: shuffledRoles[idx] }));
-            let html = `<div class="role-list">`;
-            for (let p of pairs) {
-                html += `<div class="role-item"><span class="participant-name">${escapeHtml(p.participant)}</span><span class="role-name">${escapeHtml(p.role)}</span></div>`;
+            function shuffleArray(arr) {
+                const a = [...arr];
+                for (let i = a.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [a[i], a[j]] = [a[j], a[i]];
+                }
+                return a;
             }
-            html += `</div>`;
-            outputContainer.innerHTML = html;
-            messageArea.style.display = 'none';
-        }
 
-        function showError(message) {
-            outputContainer.innerHTML = `<div style="color: #6c757d; padding: 16px 0; text-align: center;">⚠️ ${escapeHtml(message)}</div>`;
-            showMessage(message, false);
-        }
+            function escapeHtml(str) {
+                return str.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'})[m]);
+            }
 
-        function handleDistribution() {
-            let participants = participantsTextarea.value.split(/\r?\n/).filter(p => p.trim().length > 0);
-            let rolesRaw = rolesTextarea.value.split(/\r?\n/).filter(r => r.trim().length > 0);
-            let expandedRoles = expandRoles(rolesRaw);
+            const participantsTextarea = document.getElementById('participants');
+            const rolesTextarea = document.getElementById('roles');
+            const generateBtn = document.getElementById('generateBtn');
+            const clearBtn = document.getElementById('clearBtn');
+            const quickRolesBtn = document.getElementById('quickRolesBtn');
+            const playerCountInput = document.getElementById('playerCount');
+            const outputContainer = document.getElementById('outputContainer');
+            const messageArea = document.getElementById('messageArea');
+
+            function showMessage(text, isSuccess = false) {
+                messageArea.innerText = text;
+                messageArea.style.display = 'block';
+                if (isSuccess) messageArea.classList.add('success');
+                else messageArea.classList.remove('success');
+                setTimeout(() => {
+                    if (messageArea.innerText === text) messageArea.style.display = 'none';
+                }, 3000);
+            }
+
+            function showResult(participantsList, rolesList) {
+                const shuffledRoles = shuffleArray(rolesList);
+                const pairs = participantsList.map((participant, idx) => ({ participant, role: shuffledRoles[idx] }));
+                let html = `<div class="role-list">`;
+                for (let p of pairs) {
+                    html += `<div class="role-item"><span class="participant-name">${escapeHtml(p.participant)}</span><span class="role-name">${escapeHtml(p.role)}</span></div>`;
+                }
+                html += `</div>`;
+                outputContainer.innerHTML = html;
+                messageArea.style.display = 'none';
+            }
+
+            function showError(message) {
+                outputContainer.innerHTML = `<div style="color: #6c757d; padding: 16px 0; text-align: center;">⚠️ ${escapeHtml(message)}</div>`;
+                showMessage(message, false);
+            }
+
+            function handleDistribution() {
+                let participants = participantsTextarea.value.split(/\r?\n/).filter(p => p.trim().length > 0);
+                let rolesRaw = rolesTextarea.value.split(/\r?\n/).filter(r => r.trim().length > 0);
+                let expandedRoles = expandRoles(rolesRaw);
+                
+                if (participants.length === 0) { showError("Добавьте хотя бы одного участника."); return; }
+                if (expandedRoles.length === 0) { showError("Добавьте хотя бы одну роль."); return; }
+                if (participants.length !== expandedRoles.length) {
+                    showError(`Участников: ${participants.length}, а ролей: ${expandedRoles.length}. Они должны совпадать!`);
+                    return;
+                }
+                showResult(participants, expandedRoles);
+            }
+
+            function handleQuickRoles() {
+                let count = parseInt(playerCountInput.value);
+                if (isNaN(count) || count < 3 || count > 20) {
+                    showError("Введите количество игроков от 3 до 20.");
+                    return;
+                }
+                const rolesObj = rolesByCount[count];
+                if (!rolesObj) { showError(`Для ${count} игроков нет данных.`); return; }
+                rolesTextarea.value = rolesObjectToString(rolesObj);
+                showMessage(`✅ Подобраны роли для ${count} игроков.`, true);
+            }
+
+            function handleClear() {
+                participantsTextarea.value = "";
+                rolesTextarea.value = "";
+                outputContainer.innerHTML = `<div style="color: #6c757d; padding: 16px 0; text-align: center;">Нажмите на кнопку 👆</div>`;
+                messageArea.style.display = 'none';
+            }
+
+            generateBtn.addEventListener('click', handleDistribution);
+            clearBtn.addEventListener('click', handleClear);
+            quickRolesBtn.addEventListener('click', handleQuickRoles);
             
-            if (participants.length === 0) { showError("Добавьте хотя бы одного участника."); return; }
-            if (expandedRoles.length === 0) { showError("Добавьте хотя бы одну роль."); return; }
-            if (participants.length !== expandedRoles.length) {
-                showError(`Участников: ${participants.length}, а ролей: ${expandedRoles.length}. Они должны совпадать!`);
-                return;
-            }
-            showResult(participants, expandedRoles);
-        }
-
-        function handleQuickRoles() {
-            let count = parseInt(playerCountInput.value);
-            if (isNaN(count) || count < 3 || count > 20) {
-                showError("Введите количество игроков от 3 до 20.");
-                return;
-            }
-            const rolesObj = rolesByCount[count];
-            if (!rolesObj) { showError(`Для ${count} игроков нет данных.`); return; }
-            rolesTextarea.value = rolesObjectToString(rolesObj);
-            showMessage(`✅ Подобраны роли для ${count} игроков.`, true);
-        }
-
-        function handleClear() {
             participantsTextarea.value = "";
             rolesTextarea.value = "";
-            outputContainer.innerHTML = `<div style="color: #6c757d; padding: 16px 0; text-align: center;">Нажмите на кнопку 👆</div>`;
-            messageArea.style.display = 'none';
-        }
-
-        generateBtn.addEventListener('click', handleDistribution);
-        clearBtn.addEventListener('click', handleClear);
-        quickRolesBtn.addEventListener('click', handleQuickRoles);
-        
-        participantsTextarea.value = "";
-        rolesTextarea.value = "";
-    })();
-</script>
+        })();
+    </script>
 </body>
 </html>
