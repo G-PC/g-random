@@ -95,6 +95,21 @@
             font-size: 0.85rem;
             line-height: 1.4;
         }
+
+        /* Стиль для кнопки установки */
+        .install-card {
+            background: linear-gradient(135deg, #4caf50 0%, #2e7d32 100%);
+            color: white;
+        }
+
+        .install-card .card-title,
+        .install-card .card-desc {
+            color: white;
+        }
+
+        .install-card:active {
+            background: linear-gradient(135deg, #43a047 0%, #1b5e20 100%);
+        }
     </style>
 </head>
 <body>
@@ -102,7 +117,7 @@
         <a href="index.html" class="back-btn">← На главную</a>
         <h1>⚙️ Дополнительное</h1>
         <div class="subtitle">Полезные материалы и инструменты</div>
-        <div class="cards">
+        <div class="cards" id="cardsContainer">
             <a href="roles-description.pdf" class="card" target="_blank">
                 <div class="card-icon">📖</div>
                 <div class="card-title">Описание ролей</div>
@@ -113,7 +128,37 @@
                 <div class="card-title">Обратная связь</div>
                 <div class="card-desc">Сообщите о проблеме, задайте вопрос или поделитесь идеей</div>
             </a>
+            <!-- Кнопка установки приложения (будет показана только в браузере) -->
+            <div id="installCard" class="card install-card" style="display: none;">
+                <div class="card-icon">📲</div>
+                <div class="card-title">Установить приложение</div>
+                <div class="card-desc">Скачайте APK и пользуйтесь сайтом как приложением</div>
+            </div>
         </div>
     </div>
+
+    <script>
+        // Определяем, открыт ли сайт внутри APK (WebView)
+        function isInWebView() {
+            const userAgent = navigator.userAgent.toLowerCase();
+            const isWebView = (
+                (userAgent.includes('wv') ||
+                 (userAgent.includes('android') && !userAgent.includes('chrome')) ||
+                 (userAgent.includes('iphone') && !userAgent.includes('safari')))
+            );
+            return isWebView;
+        }
+
+        // Показываем кнопку установки, если не в WebView
+        if (!isInWebView()) {
+            const installCard = document.getElementById('installCard');
+            installCard.style.display = 'block';
+            
+            installCard.addEventListener('click', function() {
+                // Замените ссылку на вашу реальную ссылку для скачивания APK
+                window.open('https://g-wpi.github.io/g-random/app-release.apk', '_blank');
+            });
+        }
+    </script>
 </body>
 </html>
