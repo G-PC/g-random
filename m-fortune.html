@@ -144,188 +144,223 @@
     </style>
 </head>
 <body>
-<div class="card">
-    <a href="index.html" class="back-btn">← На главную</a>
-    <h1>🎡 Колесо фортуны</h1>
-    
-    <div class="wheel-container">
-        <canvas id="wheelCanvas" width="400" height="400"></canvas>
-        <div class="pointer"></div>
-    </div>
-    
-    <button id="spinBtn">🔀 Крутить колесо</button>
-    
-    <label>📝 Варианты (каждый с новой строки)</label>
-    <textarea id="optionsInput" rows="4" placeholder="Герман&#10;Эмир&#10;Артур&#10;Андрей&#10;Максим"></textarea>
-    
-    <div class="checkbox-label">
-        <input type="checkbox" id="removeAfterSpin">
-        <label>🗑️ Удалять выпавший вариант</label>
-    </div>
-    
-    <button id="updateWheelBtn">🔄 Обновить колесо</button>
-    
-    <div class="result">
-        <div style="font-size: 0.8rem; color: #4b5563;">Выпало:</div>
-        <div id="resultDisplay" class="result-value">—</div>
-    </div>
-    
-    <div class="history">
-        <div style="font-weight: 600; margin-bottom: 6px;">📜 История выпадений</div>
-        <div id="historyList"></div>
-    </div>
-    
-    <footer>Нажмите на колесо, чтобы крутить</footer>
-</div>
+    <!-- ПРОВЕРКА ИНТЕРНЕТА -->
+    <script>
+        (function() {
+            function showOfflinePage() {
+                document.body.innerHTML = '';
+                document.body.style.margin = '0';
+                document.body.style.padding = '0';
+                const div = document.createElement('div');
+                div.style.cssText = 'display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 100vh; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; text-align: center; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;';
+                div.innerHTML = `
+                    <div style="font-size: 4rem; margin-bottom: 20px;">📡</div>
+                    <h1 style="font-size: 1.8rem; margin-bottom: 12px;">Нет соединения</h1>
+                    <p style="max-width: 280px; opacity: 0.9; margin-bottom: 24px;">Пожалуйста, проверьте интернет-подключение и попробуйте снова.</p>
+                    <button id="reloadBtn" style="background: white; color: #667eea; border: none; padding: 12px 28px; border-radius: 40px; font-size: 1rem; font-weight: 600; cursor: pointer;">Обновить</button>
+                    <p style="margin-top: 24px; font-size: 0.8rem; opacity: 0.7;">Некоторые функции могут быть недоступны без интернета</p>
+                `;
+                document.body.appendChild(div);
+                const btn = document.getElementById('reloadBtn');
+                if (btn) btn.onclick = () => location.reload();
+            }
+            if (!navigator.onLine) showOfflinePage();
+            window.addEventListener('offline', () => showOfflinePage());
+            window.addEventListener('online', () => location.reload());
+        })();
+    </script>
 
-<script>
-    const canvas = document.getElementById('wheelCanvas');
-    const ctx = canvas.getContext('2d');
-    const optionsInput = document.getElementById('optionsInput');
-    const spinBtn = document.getElementById('spinBtn');
-    const updateWheelBtn = document.getElementById('updateWheelBtn');
-    const resultDisplay = document.getElementById('resultDisplay');
-    const historyList = document.getElementById('historyList');
-    const removeAfterSpin = document.getElementById('removeAfterSpin');
-    
-    let options = [];
-    let currentAngle = 0;
-    let spinning = false;
-    let animFrame = null;
-    let history = [];
-    
-    function parseOptions() {
-        return optionsInput.value.split(/\r?\n/).filter(opt => opt.trim().length > 0);
-    }
-    
-    function drawWheel() {
-        if (!ctx) return;
-        const w = canvas.width;
-        const h = canvas.height;
-        const cx = w / 2;
-        const cy = h / 2;
-        const r = w * 0.42;
+    <div class="card">
+        <a href="index.html" class="back-btn">← На главную</a>
+        <h1>🎡 Колесо фортуны</h1>
         
-        ctx.clearRect(0, 0, w, h);
+        <div class="wheel-container">
+            <canvas id="wheelCanvas" width="400" height="400"></canvas>
+            <div class="pointer"></div>
+        </div>
         
-        if (options.length === 0) {
-            ctx.fillStyle = '#e2e8f0';
-            ctx.beginPath();
-            ctx.arc(cx, cy, r, 0, 2 * Math.PI);
-            ctx.fill();
-            ctx.fillStyle = '#64748b';
-            ctx.font = 'bold 14px sans-serif';
-            ctx.fillText('Добавьте варианты', cx - 80, cy);
-            return;
+        <button id="spinBtn">🔀 Крутить колесо</button>
+        
+        <label>📝 Варианты (каждый с новой строки)</label>
+        <textarea id="optionsInput" rows="4" placeholder="Герман&#10;Эмир&#10;Артур&#10;Андрей&#10;Максим"></textarea>
+        
+        <div class="checkbox-label">
+            <input type="checkbox" id="removeAfterSpin">
+            <label>🗑️ Удалять выпавший вариант</label>
+        </div>
+        
+        <button id="updateWheelBtn">🔄 Обновить колесо</button>
+        
+        <div class="result">
+            <div style="font-size: 0.8rem; color: #4b5563;">Выпало:</div>
+            <div id="resultDisplay" class="result-value">—</div>
+        </div>
+        
+        <div class="history">
+            <div style="font-weight: 600; margin-bottom: 6px;">📜 История выпадений</div>
+            <div id="historyList"></div>
+        </div>
+        
+        <footer>Нажмите на колесо, чтобы крутить</footer>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('wheelCanvas');
+        const ctx = canvas.getContext('2d');
+        const optionsInput = document.getElementById('optionsInput');
+        const spinBtn = document.getElementById('spinBtn');
+        const updateWheelBtn = document.getElementById('updateWheelBtn');
+        const resultDisplay = document.getElementById('resultDisplay');
+        const historyList = document.getElementById('historyList');
+        const removeAfterSpin = document.getElementById('removeAfterSpin');
+        
+        let options = [];
+        let currentAngle = 0;
+        let spinning = false;
+        let animFrame = null;
+        let history = [];
+        
+        function parseOptions() {
+            return optionsInput.value.split(/\r?\n/).filter(opt => opt.trim().length > 0);
         }
         
-        const angleStep = (2 * Math.PI) / options.length;
-        const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD', '#F0E68C', '#87CEEB', '#FFB347', '#77DD77'];
-        
-        for (let i = 0; i < options.length; i++) {
-            const start = i * angleStep + currentAngle;
-            const end = (i + 1) * angleStep + currentAngle;
+        function drawWheel() {
+            if (!ctx) return;
+            const w = canvas.width;
+            const h = canvas.height;
+            const cx = w / 2;
+            const cy = h / 2;
+            const r = w * 0.42;
+            
+            ctx.clearRect(0, 0, w, h);
+            
+            if (options.length === 0) {
+                ctx.fillStyle = '#e2e8f0';
+                ctx.beginPath();
+                ctx.arc(cx, cy, r, 0, 2 * Math.PI);
+                ctx.fill();
+                ctx.fillStyle = '#64748b';
+                ctx.font = 'bold 14px sans-serif';
+                ctx.fillText('Добавьте варианты', cx - 80, cy);
+                return;
+            }
+            
+            const angleStep = (2 * Math.PI) / options.length;
+            const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD', '#F0E68C', '#87CEEB', '#FFB347', '#77DD77'];
+            
+            for (let i = 0; i < options.length; i++) {
+                const start = i * angleStep + currentAngle;
+                const end = (i + 1) * angleStep + currentAngle;
+                
+                ctx.beginPath();
+                ctx.arc(cx, cy, r, start, end);
+                ctx.lineTo(cx, cy);
+                ctx.fillStyle = colors[i % colors.length];
+                ctx.fill();
+                
+                ctx.save();
+                ctx.translate(cx, cy);
+                ctx.rotate(start + angleStep / 2);
+                ctx.fillStyle = '#1f2937';
+                ctx.font = 'bold 11px sans-serif';
+                let text = options[i];
+                if (text.length > 12) text = text.slice(0, 10) + '..';
+                ctx.fillText(text, r * 0.65, 5);
+                ctx.restore();
+            }
             
             ctx.beginPath();
-            ctx.arc(cx, cy, r, start, end);
-            ctx.lineTo(cx, cy);
-            ctx.fillStyle = colors[i % colors.length];
+            ctx.arc(cx, cy, 12, 0, 2 * Math.PI);
+            ctx.fillStyle = '#ffffff';
             ctx.fill();
-            
-            ctx.save();
-            ctx.translate(cx, cy);
-            ctx.rotate(start + angleStep / 2);
-            ctx.fillStyle = '#1f2937';
-            ctx.font = 'bold 11px sans-serif';
-            let text = options[i];
-            if (text.length > 12) text = text.slice(0, 10) + '..';
-            ctx.fillText(text, r * 0.65, 5);
-            ctx.restore();
+            ctx.strokeStyle = '#cbd5e1';
+            ctx.lineWidth = 2;
+            ctx.stroke();
         }
-    }
-    
-    function getCurrentOption() {
-        if (options.length === 0) return null;
-        const arrowAngle = -Math.PI / 2;
-        let raw = (arrowAngle - currentAngle + 2 * Math.PI) % (2 * Math.PI);
-        const step = (2 * Math.PI) / options.length;
-        let idx = Math.floor(raw / step) % options.length;
-        return options[idx];
-    }
-    
-    function spinWheel() {
-        if (spinning || options.length === 0) return;
-        spinning = true;
         
-        const duration = 2000;
-        const startTime = performance.now();
-        const startAngle = currentAngle;
-        const fullTurns = 6 + Math.random() * 4;
-        const targetDelta = fullTurns * 2 * Math.PI + Math.random() * 2 * Math.PI;
+        function getCurrentOption() {
+            if (options.length === 0) return null;
+            const arrowAngle = -Math.PI / 2;
+            let raw = (arrowAngle - currentAngle + 2 * Math.PI) % (2 * Math.PI);
+            const step = (2 * Math.PI) / options.length;
+            let idx = Math.floor(raw / step) % options.length;
+            return options[idx];
+        }
         
-        function animate(now) {
-            const elapsed = now - startTime;
-            let t = Math.min(1, elapsed / duration);
-            const ease = 1 - Math.pow(1 - t, 3);
-            currentAngle = startAngle + targetDelta * ease;
-            drawWheel();
+        function spinWheel() {
+            if (spinning || options.length === 0) return;
+            spinning = true;
             
-            if (t < 1) {
-                animFrame = requestAnimationFrame(animate);
-            } else {
-                currentAngle = (startAngle + targetDelta) % (2 * Math.PI);
+            const duration = 2000;
+            const startTime = performance.now();
+            const startAngle = currentAngle;
+            const fullTurns = 8 + Math.random() * 5;
+            const randomOffset = Math.random() * 2 * Math.PI;
+            const targetDelta = fullTurns * 2 * Math.PI + randomOffset;
+            
+            function animate(now) {
+                const elapsed = now - startTime;
+                let t = Math.min(1, elapsed / duration);
+                const ease = 1 - Math.pow(1 - t, 3);
+                currentAngle = startAngle + targetDelta * ease;
                 drawWheel();
-                spinning = false;
-                const result = getCurrentOption();
-                if (result) {
-                    resultDisplay.textContent = result;
-                    history.unshift(result);
-                    if (history.length > 20) history.pop();
-                    updateHistory();
-                    if (removeAfterSpin.checked) {
-                        const idx = options.indexOf(result);
-                        if (idx !== -1) {
-                            options.splice(idx, 1);
-                            optionsInput.value = options.join('\n');
-                            if (options.length === 0) resultDisplay.textContent = 'Все варианты выбыли!';
-                            drawWheel();
+                
+                if (t < 1) {
+                    animFrame = requestAnimationFrame(animate);
+                } else {
+                    currentAngle = (startAngle + targetDelta) % (2 * Math.PI);
+                    drawWheel();
+                    spinning = false;
+                    const result = getCurrentOption();
+                    if (result) {
+                        resultDisplay.textContent = result;
+                        history.unshift(result);
+                        if (history.length > 20) history.pop();
+                        updateHistoryDisplay();
+                        if (removeAfterSpin.checked) {
+                            const idx = options.indexOf(result);
+                            if (idx !== -1) {
+                                options.splice(idx, 1);
+                                optionsInput.value = options.join('\n');
+                                if (options.length === 0) resultDisplay.textContent = 'Все варианты выбыли!';
+                                drawWheel();
+                            }
                         }
                     }
+                    animFrame = null;
                 }
-                animFrame = null;
+            }
+            
+            if (animFrame) cancelAnimationFrame(animFrame);
+            animFrame = requestAnimationFrame(animate);
+        }
+        
+        function updateHistoryDisplay() {
+            if (history.length === 0) {
+                historyList.innerHTML = '<div style="color: #6c757d;">Пока пусто</div>';
+            } else {
+                historyList.innerHTML = history.map(h => `<div class="history-item">• ${escapeHtml(h)}</div>`).join('');
             }
         }
         
-        if (animFrame) cancelAnimationFrame(animFrame);
-        animFrame = requestAnimationFrame(animate);
-    }
-    
-    function updateHistory() {
-        if (history.length === 0) {
-            historyList.innerHTML = '<div style="color: #6c757d;">Пока пусто</div>';
-        } else {
-            historyList.innerHTML = history.map(h => `<div class="history-item">• ${escapeHtml(h)}</div>`).join('');
+        function escapeHtml(str) {
+            return str.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'})[m]);
         }
-    }
-    
-    function escapeHtml(str) {
-        return str.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'})[m]);
-    }
-    
-    function updateWheel() {
-        options = parseOptions();
-        history = [];
-        updateHistory();
-        resultDisplay.textContent = '—';
-        drawWheel();
-    }
-    
-    optionsInput.value = "Герман\nЭмир\nАртур\nАндрей\nМаксим";
-    updateWheel();
-    
-    spinBtn.addEventListener('click', spinWheel);
-    updateWheelBtn.addEventListener('click', updateWheel);
-    canvas.addEventListener('click', spinWheel);
-</script>
+        
+        function updateWheel() {
+            options = parseOptions();
+            history = [];
+            updateHistoryDisplay();
+            resultDisplay.textContent = '—';
+            drawWheel();
+        }
+        
+        optionsInput.value = "Герман\nЭмир\nАртур\nАндрей\nМаксим";
+        updateWheel();
+        
+        spinBtn.addEventListener('click', spinWheel);
+        updateWheelBtn.addEventListener('click', updateWheel);
+        canvas.addEventListener('click', spinWheel);
+    </script>
 </body>
 </html>
