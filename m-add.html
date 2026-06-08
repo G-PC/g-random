@@ -156,7 +156,7 @@
             <div id="installCard" class="card install-card" style="display: none;">
                 <div id="installIcon" class="card-icon">📲</div>
                 <div id="installTitle" class="card-title">Установить приложение</div>
-                <div id="installDesc" class="card-desc">Скачайте APK и пользуйтесь сайтом как приложением</div>
+                <div id="installDesc" class="card-desc">Скачайте APK-файл и установите на телефон</div>
             </div>
         </div>
     </div>
@@ -187,7 +187,7 @@
                 document.getElementById('installIcon').textContent = '📲';
                 document.getElementById('installTitle').textContent = 'Установить приложение';
                 document.getElementById('installDesc').textContent = 'Скачайте APK-файл и установите на телефон';
-                installCard.onclick = () => window.open('https://g-wpi.github.io/g-random/G-RANDOM_android.apk', '_blank');
+                installCard.onclick = () => window.open('https://g-pc.github.io/g-random/G-RANDOM_android.apk', '_blank');
             } 
             else if (isIOS) {
                 document.getElementById('installIcon').textContent = '📱';
@@ -196,10 +196,7 @@
                 installCard.onclick = () => alert('Нажмите «Поделиться» → «На экран «Домой»»');
             }
             else {
-                document.getElementById('installIcon').textContent = '💻';
-                document.getElementById('installTitle').textContent = 'Установка не требуется';
-                document.getElementById('installDesc').textContent = 'Вы на компьютере — просто пользуйтесь сайтом';
-                installCard.onclick = () => alert('На компьютере установка не требуется.');
+                installCard.style.display = 'none';
             }
         }
 
