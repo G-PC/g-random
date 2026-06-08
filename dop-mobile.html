@@ -13,38 +13,6 @@
         }
 
         body {
-                <!-- Проверка интернет-соединения -->
-    <script>
-        (function() {
-            // Функция показа заглушки
-            function showOfflinePage() {
-                document.body.innerHTML = `
-                    <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 100vh; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; text-align: center; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
-                        <div style="font-size: 4rem; margin-bottom: 20px;">📡</div>
-                        <h1 style="font-size: 1.8rem; margin-bottom: 12px;">Нет соединения</h1>
-                        <p style="max-width: 280px; opacity: 0.9; margin-bottom: 24px;">Пожалуйста, проверьте интернет-подключение и попробуйте снова.</p>
-                        <button onclick="location.reload()" style="background: white; color: #667eea; border: none; padding: 12px 28px; border-radius: 40px; font-size: 1rem; font-weight: 600; cursor: pointer;">Обновить</button>
-                        <p style="margin-top: 24px; font-size: 0.8rem; opacity: 0.7;">Некоторые функции могут быть недоступны без интернета</p>
-                    </div>
-                `;
-            }
-
-            // Если нет интернета — показываем заглушку сразу
-            if (!navigator.onLine) {
-                showOfflinePage();
-            }
-
-            // Слушаем события: интернет пропал
-            window.addEventListener('offline', function() {
-                showOfflinePage();
-            });
-
-            // Интернет появился — перезагружаем страницу
-            window.addEventListener('online', function() {
-                location.reload();
-            });
-        })();
-    </script>
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
@@ -128,7 +96,6 @@
             line-height: 1.4;
         }
 
-        /* Стиль для кнопки установки */
         .install-card {
             background: linear-gradient(135deg, #4caf50 0%, #2e7d32 100%);
             color: white;
@@ -142,74 +109,42 @@
         .install-card:active {
             background: linear-gradient(135deg, #43a047 0%, #1b5e20 100%);
         }
-
-        /* Модальное окно для инструкции iPhone */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.8);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-
-        .modal-content {
-            background: white;
-            border-radius: 28px;
-            max-width: 320px;
-            width: 100%;
-            padding: 24px;
-            text-align: center;
-            position: relative;
-        }
-
-        .modal-content h3 {
-            font-size: 1.4rem;
-            margin-bottom: 16px;
-            color: #1f2937;
-        }
-
-        .modal-content p {
-            color: #4b5563;
-            margin-bottom: 20px;
-            line-height: 1.4;
-        }
-
-        .steps {
-            text-align: left;
-            margin: 16px 0;
-            padding-left: 20px;
-        }
-
-        .steps li {
-            margin: 12px 0;
-            color: #374151;
-        }
-
-        .close-modal {
-            background: #1e88e5;
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 40px;
-            font-size: 1rem;
-            font-weight: 600;
-            width: 100%;
-            cursor: pointer;
-        }
-
-        .close-modal:active {
-            background: #0b5e8a;
-            transform: scale(0.97);
-        }
     </style>
 </head>
 <body>
+    <!-- ПРОВЕРКА ИНТЕРНЕТА -->
+    <script>
+        (function() {
+            function showOfflinePage() {
+                document.body.innerHTML = '';
+                document.body.style.margin = '0';
+                document.body.style.padding = '0';
+                
+                const div = document.createElement('div');
+                div.style.cssText = 'display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 100vh; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; text-align: center; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;';
+                div.innerHTML = `
+                    <div style="font-size: 4rem; margin-bottom: 20px;">📡</div>
+                    <h1 style="font-size: 1.8rem; margin-bottom: 12px;">Нет соединения</h1>
+                    <p style="max-width: 280px; opacity: 0.9; margin-bottom: 24px;">Пожалуйста, проверьте интернет-подключение и попробуйте снова.</p>
+                    <button id="reloadBtn" style="background: white; color: #667eea; border: none; padding: 12px 28px; border-radius: 40px; font-size: 1rem; font-weight: 600; cursor: pointer;">Обновить</button>
+                    <p style="margin-top: 24px; font-size: 0.8rem; opacity: 0.7;">Некоторые функции могут быть недоступны без интернета</p>
+                `;
+                document.body.appendChild(div);
+                
+                const btn = document.getElementById('reloadBtn');
+                if (btn) btn.onclick = () => location.reload();
+            }
+
+            if (!navigator.onLine) {
+                showOfflinePage();
+            }
+
+            window.addEventListener('offline', () => showOfflinePage());
+            window.addEventListener('online', () => location.reload());
+        })();
+    </script>
+
+    <!-- ОСНОВНОЙ КОНТЕНТ -->
     <div class="container">
         <a href="index.html" class="back-btn">← На главную</a>
         <h1>⚙️ Дополнительное</h1>
@@ -225,7 +160,6 @@
                 <div class="card-title">Обратная связь</div>
                 <div class="card-desc">Сообщите о проблеме, задайте вопрос или поделитесь идеей</div>
             </a>
-            <!-- Кнопка установки приложения -->
             <div id="installCard" class="card install-card" style="display: none;">
                 <div id="installIcon" class="card-icon">📲</div>
                 <div id="installTitle" class="card-title">Установить приложение</div>
@@ -234,94 +168,45 @@
         </div>
     </div>
 
-    <!-- Модальное окно для iPhone -->
-    <div id="iosModal" class="modal">
-        <div class="modal-content">
-            <h3>📱 Добавьте на главный экран</h3>
-            <p>Чтобы пользоваться сайтом как приложением на iPhone:</p>
-            <ol class="steps">
-                <li>Нажмите кнопку <strong>«Поделиться»</strong> (квадрат со стрелкой внизу экрана)</li>
-                <li>Прокрутите меню и нажмите <strong>«На экран «Домой»»</strong></li>
-                <li>Нажмите <strong>«Добавить»</strong> в правом верхнем углу</li>
-            </ol>
-            <p>После этого на рабочем столе появится иконка приложения.</p>
-            <button class="close-modal" onclick="closeModal()">Понятно, спасибо</button>
-        </div>
-    </div>
-
     <script>
-        // Определяем тип устройства
         function getDeviceType() {
             const ua = navigator.userAgent.toLowerCase();
             const isAndroid = ua.includes('android');
             const isIOS = /iphone|ipad|ipod/.test(ua);
             const isWebView = ua.includes('wv') || (ua.includes('android') && !ua.includes('chrome'));
-            
             return { isAndroid, isIOS, isWebView };
         }
 
-        function showModal() {
-            const modal = document.getElementById('iosModal');
-            modal.style.display = 'flex';
-        }
-
-        function closeModal() {
-            const modal = document.getElementById('iosModal');
-            modal.style.display = 'none';
-        }
-
-        // Настраиваем кнопку установки
         function setupInstallButton() {
             const installCard = document.getElementById('installCard');
-            const installIcon = document.getElementById('installIcon');
-            const installTitle = document.getElementById('installTitle');
-            const installDesc = document.getElementById('installDesc');
+            if (!installCard) return;
             
             const { isAndroid, isIOS, isWebView } = getDeviceType();
             
-            // Если открыто внутри WebView (APK) — скрываем кнопку
             if (isWebView) {
                 installCard.style.display = 'none';
                 return;
             }
             
-            // Показываем кнопку
             installCard.style.display = 'block';
             
             if (isAndroid) {
-                // Android: скачивание APK
-                installIcon.textContent = '📲';
-                installTitle.textContent = 'Установить приложение';
-                installDesc.textContent = 'Скачайте APK-файл и установите на телефон';
-                installCard.onclick = () => {
-                    window.open('https://g-wpi.github.io/g-random/app-release.apk', '_blank');
-                };
+                document.getElementById('installIcon').textContent = '📲';
+                document.getElementById('installTitle').textContent = 'Установить приложение';
+                document.getElementById('installDesc').textContent = 'Скачайте APK-файл и установите на телефон';
+                installCard.onclick = () => window.open('https://g-wpi.github.io/g-random/app-release.apk', '_blank');
             } 
             else if (isIOS) {
-                // iPhone: инструкция по добавлению на главный экран
-                installIcon.textContent = '📱';
-                installTitle.textContent = 'Добавить на главный экран';
-                installDesc.textContent = 'Как установить наш сайт как приложение на iPhone';
-                installCard.onclick = () => {
-                    showModal();
-                };
+                document.getElementById('installIcon').textContent = '📱';
+                document.getElementById('installTitle').textContent = 'Добавить на главный экран';
+                document.getElementById('installDesc').textContent = 'Как установить наш сайт как приложение на iPhone';
+                installCard.onclick = () => alert('Нажмите «Поделиться» → «На экран «Домой»»');
             }
             else {
-                // Компьютер
-                installIcon.textContent = '💻';
-                installTitle.textContent = 'Установка не требуется';
-                installDesc.textContent = 'Вы на компьютере — просто пользуйтесь сайтом';
-                installCard.onclick = () => {
-                    alert('На компьютере установка не требуется. Просто пользуйтесь сайтом через браузер.');
-                };
-            }
-        }
-
-        // Закрытие модального окна при клике вне его
-        window.onclick = function(event) {
-            const modal = document.getElementById('iosModal');
-            if (event.target === modal) {
-                modal.style.display = 'none';
+                document.getElementById('installIcon').textContent = '💻';
+                document.getElementById('installTitle').textContent = 'Установка не требуется';
+                document.getElementById('installDesc').textContent = 'Вы на компьютере — просто пользуйтесь сайтом';
+                installCard.onclick = () => alert('На компьютере установка не требуется.');
             }
         }
 
