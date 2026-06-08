@@ -1,7 +1,6 @@
 # 🎲 G-RANDOM / G-РАНДОМ
 
-![Версия](https://img.shields.io/badge/version-1.2.0-green.svg)
-![Лицензия](https://img.shields.io/badge/license-MIT-blue.svg)
+![Версия](https://img.shields.io/badge/version-1.1.0-green.svg)
 
 **G-RANDOM** — это набор инструментов для случайных выборов. Идеальное решение для игр (Мафия, Крокодил), розыгрышей и бытовых решений.
 
