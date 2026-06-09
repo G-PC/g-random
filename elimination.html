@@ -160,10 +160,14 @@
             margin-top: 12px;
             font-weight: 600;
         }
+        .hint {
+            font-size: 0.75rem;
+            color: #6c757d;
+            margin-top: 6px;
+        }
     </style>
 </head>
 <body>
-
 
 <div class="container">
     <a href="index.html" class="back-btn">← На главную</a>
@@ -181,7 +185,8 @@
         </div>
         <div class="controls-panel">
             <label>📝 Варианты (каждый с новой строки)</label>
-            <textarea id="optionsInput" placeholder="Герман&#10;Эмир&#10;Артур&#10;Андрей&#10;Максим"></textarea>
+            <textarea id="optionsInput" placeholder="Герман&#10;Эмир x2&#10;Артур&#10;Андрей x3"></textarea>
+            <div class="hint">📌 Можно указывать множитель: «Андрей x2», «Мафия *3» — тогда вариант займёт больше места на колесе</div>
             <button id="updateWheelBtn">🔄 Обновить колесо</button>
             
             <div class="result">
@@ -210,15 +215,39 @@
     const eliminatedListDiv = document.getElementById('eliminatedList');
     const remainingCountSpan = document.getElementById('remainingCount');
     
-    let allOptions = [];
-    let currentOptions = [];
-    let eliminated = [];
+    let allItems = [];      // Исходные варианты с весами
+    let currentItems = [];  // Текущие варианты с весами
+    let eliminated = [];     // Выбывшие (имена)
     let currentAngle = 0;
     let spinning = false;
     let animFrame = null;
     
+    function parseOption(line) {
+        let trimmed = line.trim();
+        if (trimmed === "") return null;
+        let match = trimmed.match(/^(.*?)\s*[хx*]\s*(\d+)$/i);
+        if (match) {
+            let name = match[1].trim();
+            let weight = parseInt(match[2], 10);
+            if (isNaN(weight) || weight < 1) weight = 1;
+            return { name: name, weight: weight };
+        } else {
+            return { name: trimmed, weight: 1 };
+        }
+    }
+    
     function parseOptions() {
-        return optionsInput.value.split(/\r?\n/).filter(opt => opt.trim().length > 0);
+        let lines = optionsInput.value.split(/\r?\n/);
+        let newItems = [];
+        for (let line of lines) {
+            let item = parseOption(line);
+            if (item) newItems.push(item);
+        }
+        return newItems;
+    }
+    
+    function itemsToString(items) {
+        return items.map(item => item.weight > 1 ? `${item.name} x${item.weight}` : item.name).join('\n');
     }
     
     function drawWheel() {
@@ -231,7 +260,7 @@
         
         ctx.clearRect(0, 0, w, h);
         
-        if (currentOptions.length === 0) {
+        if (currentItems.length === 0) {
             ctx.fillStyle = '#e2e8f0';
             ctx.beginPath();
             ctx.arc(cx, cy, r, 0, 2 * Math.PI);
@@ -242,28 +271,39 @@
             return;
         }
         
-        const angleStep = (2 * Math.PI) / currentOptions.length;
+        let totalWeight = currentItems.reduce((sum, item) => sum + item.weight, 0);
+        let angleStep = (2 * Math.PI) / totalWeight;
         const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD', '#F0E68C', '#87CEEB', '#FFB347', '#77DD77', '#FF9999', '#99CC99'];
         
-        for (let i = 0; i < currentOptions.length; i++) {
-            const start = i * angleStep + currentAngle;
-            const end = (i + 1) * angleStep + currentAngle;
+        let startAngle = currentAngle;
+        
+        for (let i = 0; i < currentItems.length; i++) {
+            let item = currentItems[i];
+            let sectorColor = colors[i % colors.length];
             
-            ctx.beginPath();
-            ctx.arc(cx, cy, r, start, end);
-            ctx.lineTo(cx, cy);
-            ctx.fillStyle = colors[i % colors.length];
-            ctx.fill();
-            
-            ctx.save();
-            ctx.translate(cx, cy);
-            ctx.rotate(start + angleStep / 2);
-            ctx.fillStyle = '#1f2937';
-            ctx.font = 'bold 14px sans-serif';
-            let text = currentOptions[i];
-            if (text.length > 20) text = text.slice(0, 17) + '...';
-            ctx.fillText(text, r * 0.65, 5);
-            ctx.restore();
+            for (let s = 0; s < item.weight; s++) {
+                let endAngle = startAngle + angleStep;
+                
+                ctx.beginPath();
+                ctx.arc(cx, cy, r, startAngle, endAngle);
+                ctx.lineTo(cx, cy);
+                ctx.fillStyle = sectorColor;
+                ctx.fill();
+                
+                if (s === 0) {
+                    ctx.save();
+                    ctx.translate(cx, cy);
+                    ctx.rotate(startAngle + angleStep / 2);
+                    ctx.fillStyle = '#1f2937';
+                    ctx.font = 'bold 14px sans-serif';
+                    let text = item.name;
+                    if (text.length > 20) text = text.slice(0, 17) + '...';
+                    ctx.fillText(text, r * 0.65, 5);
+                    ctx.restore();
+                }
+                
+                startAngle = endAngle;
+            }
         }
         
         ctx.beginPath();
@@ -276,26 +316,38 @@
     }
     
     function getCurrentOption() {
-        if (currentOptions.length === 0) return null;
+        if (currentItems.length === 0) return null;
+        
+        let totalWeight = currentItems.reduce((sum, item) => sum + item.weight, 0);
+        let angleStep = (2 * Math.PI) / totalWeight;
         const arrowAngle = -Math.PI / 2;
         let raw = (arrowAngle - currentAngle + 2 * Math.PI) % (2 * Math.PI);
-        const step = (2 * Math.PI) / currentOptions.length;
-        let idx = Math.floor(raw / step) % currentOptions.length;
-        return currentOptions[idx];
+        let sectorIndex = Math.floor(raw / angleStep) % totalWeight;
+        
+        let accum = 0;
+        for (let item of currentItems) {
+            if (sectorIndex < accum + item.weight) {
+                return item.name;
+            }
+            accum += item.weight;
+        }
+        return currentItems[0]?.name;
     }
     
     function updateDisplay() {
-        remainingCountSpan.innerHTML = `🎯 Осталось: ${currentOptions.length}`;
+        let totalWeight = currentItems.reduce((sum, item) => sum + item.weight, 0);
+        remainingCountSpan.innerHTML = `🎯 Осталось: ${currentItems.length} вариантов (${totalWeight} секторов)`;
+        
         if (eliminated.length === 0) {
             eliminatedListDiv.innerHTML = '<div style="color: #6c757d;">Пока никто не выбыл</div>';
         } else {
             eliminatedListDiv.innerHTML = eliminated.map(e => `<div class="eliminated-item">• ${escapeHtml(e)}</div>`).join('');
         }
-        spinBtn.disabled = currentOptions.length === 0;
+        spinBtn.disabled = currentItems.length === 0;
     }
     
     function spinWheel() {
-        if (spinning || currentOptions.length === 0) return;
+        if (spinning || currentItems.length === 0) return;
         spinning = true;
         
         const duration = 2000;
@@ -321,13 +373,14 @@
                 const result = getCurrentOption();
                 if (result) {
                     resultDisplay.textContent = result;
-                    const idx = currentOptions.indexOf(result);
-                    if (idx !== -1) {
-                        currentOptions.splice(idx, 1);
+                    // Находим вариант по имени и удаляем его целиком
+                    const index = currentItems.findIndex(item => item.name === result);
+                    if (index !== -1) {
                         eliminated.unshift(result);
+                        currentItems.splice(index, 1);
                     }
                     updateDisplay();
-                    if (currentOptions.length > 0) {
+                    if (currentItems.length > 0) {
                         drawWheel();
                     } else {
                         resultDisplay.textContent = '🏆 Все выбыли!';
@@ -344,7 +397,7 @@
     
     function resetGame() {
         if (spinning) return;
-        currentOptions = [...allOptions];
+        currentItems = allItems.map(item => ({ ...item }));
         eliminated = [];
         currentAngle = 0;
         resultDisplay.textContent = '—';
@@ -354,8 +407,8 @@
     
     function updateWheel() {
         if (spinning) return;
-        allOptions = parseOptions();
-        currentOptions = [...allOptions];
+        allItems = parseOptions();
+        currentItems = allItems.map(item => ({ ...item }));
         eliminated = [];
         currentAngle = 0;
         resultDisplay.textContent = '—';
@@ -367,7 +420,7 @@
         return str.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'})[m]);
     }
     
-    optionsInput.value = "Герман\nЭмир\nАртур\nАндрей\nМаксим";
+    optionsInput.value = "Герман\nЭмир x2\nАртур\nАндрей x3";
     updateWheel();
     
     spinBtn.addEventListener('click', spinWheel);
@@ -375,7 +428,5 @@
     updateWheelBtn.addEventListener('click', updateWheel);
     canvas.addEventListener('click', spinWheel);
 </script>
-
-
 </body>
 </html>
