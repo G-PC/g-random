@@ -154,6 +154,22 @@
     </style>
 </head>
 <body>
+
+<script>
+    if (!navigator.onLine) {
+        document.body.innerHTML = `
+            <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 100vh; font-family: system-ui; text-align: center; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                <div style="font-size: 4rem; margin-bottom: 20px;">📡</div>
+                <h1 style="font-size: 1.8rem; margin-bottom: 12px;">Нет соединения</h1>
+                <p style="max-width: 280px; margin-bottom: 24px;">Пожалуйста, проверьте интернет-подключение и попробуйте снова.</p>
+                <button onclick="location.reload()" style="background: white; color: #667eea; border: none; padding: 12px 28px; border-radius: 40px; font-size: 1rem; font-weight: 600;">Обновить</button>
+                <p style="margin-top: 24px; font-size: 0.8rem;">Для первого запуска требуется интернет</p>
+            </div>
+        `;
+        throw new Error('offline');
+    }
+</script>
+
 <div class="container">
     <a href="index.html" class="back-btn">← На главную</a>
     <h1>🎡 Колесо фортуны</h1>
@@ -254,13 +270,19 @@
             ctx.fillText(text, r * 0.65, 5);
             ctx.restore();
         }
+        
+        ctx.beginPath();
+        ctx.arc(cx, cy, 15, 0, 2 * Math.PI);
+        ctx.fillStyle = '#ffffff';
+        ctx.fill();
+        ctx.strokeStyle = '#cbd5e1';
+        ctx.lineWidth = 2;
+        ctx.stroke();
     }
     
     function getCurrentOption() {
         if (options.length === 0) return null;
-        // Стрелка сверху (угол -90° = -PI/2)
         const arrowAngle = -Math.PI / 2;
-        // Нормализуем угол стрелки относительно вращения колеса
         let raw = (arrowAngle - currentAngle + 2 * Math.PI) % (2 * Math.PI);
         const step = (2 * Math.PI) / options.length;
         let idx = Math.floor(raw / step) % options.length;
@@ -274,15 +296,13 @@
         const duration = 2000;
         const startTime = performance.now();
         const startAngle = currentAngle;
-        // Случайное количество полных оборотов (6-10) + случайный доворот
-        const fullTurns = 6 + Math.random() * 4;
-        const targetDelta = fullTurns * 2 * Math.PI + Math.random() * 2 * Math.PI;
-        const targetAngle = startAngle + targetDelta;
+        const fullTurns = 8 + Math.random() * 5;
+        const randomOffset = Math.random() * 2 * Math.PI;
+        const targetDelta = fullTurns * 2 * Math.PI + randomOffset;
         
         function animate(now) {
             const elapsed = now - startTime;
             let t = Math.min(1, elapsed / duration);
-            // Плавное замедление (easeOutCubic)
             const ease = 1 - Math.pow(1 - t, 3);
             currentAngle = startAngle + targetDelta * ease;
             drawWheel();
@@ -290,26 +310,21 @@
             if (t < 1) {
                 animFrame = requestAnimationFrame(animate);
             } else {
-                // Фиксируем финальный угол без остатка
-                currentAngle = targetAngle % (2 * Math.PI);
+                currentAngle = (startAngle + targetDelta) % (2 * Math.PI);
                 drawWheel();
                 spinning = false;
-                
                 const result = getCurrentOption();
                 if (result) {
                     resultDisplay.textContent = result;
                     history.unshift(result);
                     if (history.length > 20) history.pop();
-                    updateHistory();
-                    
+                    updateHistoryDisplay();
                     if (removeAfterSpin.checked) {
                         const idx = options.indexOf(result);
                         if (idx !== -1) {
                             options.splice(idx, 1);
                             optionsInput.value = options.join('\n');
-                            if (options.length === 0) {
-                                resultDisplay.textContent = 'Все варианты выбыли!';
-                            }
+                            if (options.length === 0) resultDisplay.textContent = 'Все варианты выбыли!';
                             drawWheel();
                         }
                     }
@@ -322,7 +337,7 @@
         animFrame = requestAnimationFrame(animate);
     }
     
-    function updateHistory() {
+    function updateHistoryDisplay() {
         if (history.length === 0) {
             historyList.innerHTML = '<div style="color: #6c757d;">Пока пусто</div>';
         } else {
@@ -337,7 +352,7 @@
     function updateWheel() {
         options = parseOptions();
         history = [];
-        updateHistory();
+        updateHistoryDisplay();
         resultDisplay.textContent = '—';
         drawWheel();
     }
@@ -350,6 +365,12 @@
     canvas.addEventListener('click', spinWheel);
     
     window.addEventListener('resize', () => drawWheel());
+</script>
+
+<script>
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/g-random/sw.js').catch(console.log);
+    }
 </script>
 </body>
 </html>
