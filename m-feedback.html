@@ -230,6 +230,7 @@
     <div class="subtitle">Оставляйте свои вопросы по сайту и приложению G-RANDOM</div>
 
     <form id="feedbackForm">
+        <!-- Устройство (необязательное поле) -->
         <div class="form-group">
             <label>Укажите, по какому устройству возник вопрос <span class="optional">(необязательно)</span></label>
             <select id="device">
@@ -242,16 +243,19 @@
             </select>
         </div>
 
+        <!-- Имя -->
         <div class="form-group">
             <label>Имя <span class="required">*</span></label>
             <input type="text" id="name" required>
         </div>
 
+        <!-- Email -->
         <div class="form-group">
             <label>Адрес эл. почты <span class="required">*</span></label>
             <input type="email" id="email" required>
         </div>
 
+        <!-- Тема вопроса -->
         <div class="form-group">
             <label>Тема вопроса <span class="required">*</span></label>
             <select id="topic" required>
@@ -264,6 +268,7 @@
             </select>
         </div>
 
+        <!-- Вопрос -->
         <div class="form-group">
             <label>Вопрос <span class="required">*</span></label>
             <textarea id="message" required></textarea>
@@ -295,6 +300,7 @@
         document.getElementById('noInternetModal').style.display = 'none';
     }
 
+    // НАСТРОЙКА FORMBREE
     const FORMSPREE_ID = 'mwvjbyoo';
     const FORMSPREE_URL = `https://formspree.io/f/${FORMSPREE_ID}`;
 
@@ -303,40 +309,33 @@
 
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
-        
+
         // Проверка интернета
         if (!navigator.onLine) {
             document.getElementById('noInternetModal').style.display = 'flex';
             return;
         }
-        
-        if (FORMSPREE_ID === 'mwvjbyoo') {
-            messageDiv.className = 'message-error';
-            messageDiv.innerHTML = '⚠️ Форма временно недоступна. Пожалуйста, напишите на почту напрямую: <strong>gwpi.adm123@gmail.com</strong>';
-            messageDiv.style.display = 'block';
-            return;
-        }
-        
+
         const device = document.getElementById('device').value;
         const name = document.getElementById('name').value;
         const email = document.getElementById('email').value;
         const topic = document.getElementById('topic').value;
         const message = document.getElementById('message').value;
-        
+
         const formData = new FormData();
         formData.append('device', device);
         formData.append('name', name);
         formData.append('email', email);
         formData.append('topic', topic);
         formData.append('message', message);
-        
+
         try {
             const response = await fetch(FORMSPREE_URL, {
                 method: 'POST',
                 body: formData,
                 headers: { 'Accept': 'application/json' }
             });
-            
+
             if (response.ok) {
                 messageDiv.className = 'message-success';
                 messageDiv.innerHTML = '✅ Сообщение отправлено! Ответ придёт на вашу почту.';
