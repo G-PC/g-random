@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
     <title>Генератор случайных чисел</title>
+    <link rel="icon" type="image/x-icon" href="/g-random/favicon.ico">
     <style>
         * {
             box-sizing: border-box;
@@ -199,222 +200,218 @@
     </style>
 </head>
 <body>
-    <!-- ПРОВЕРКА ИНТЕРНЕТА -->
-    <script>
-        (function() {
-            function showOfflinePage() {
-                document.body.innerHTML = '';
-                document.body.style.margin = '0';
-                document.body.style.padding = '0';
-                const div = document.createElement('div');
-                div.style.cssText = 'display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 100vh; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; text-align: center; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;';
-                div.innerHTML = `
-                    <div style="font-size: 4rem; margin-bottom: 20px;">📡</div>
-                    <h1 style="font-size: 1.8rem; margin-bottom: 12px;">Нет соединения</h1>
-                    <p style="max-width: 280px; opacity: 0.9; margin-bottom: 24px;">Пожалуйста, проверьте интернет-подключение и попробуйте снова.</p>
-                    <button id="reloadBtn" style="background: white; color: #667eea; border: none; padding: 12px 28px; border-radius: 40px; font-size: 1rem; font-weight: 600; cursor: pointer;">Обновить</button>
-                    <p style="margin-top: 24px; font-size: 0.8rem; opacity: 0.7;">Некоторые функции могут быть недоступны без интернета</p>
-                `;
-                document.body.appendChild(div);
-                const btn = document.getElementById('reloadBtn');
-                if (btn) btn.onclick = () => location.reload();
-            }
-            if (!navigator.onLine) showOfflinePage();
-            window.addEventListener('offline', () => showOfflinePage());
-            window.addEventListener('online', () => location.reload());
-        })();
-    </script>
 
-    <div class="card">
-        <a href="index.html" class="back-btn">← На главную</a>
-        <h1>🎲 Генератор случайных чисел</h1>
-        <div class="sub">Генератор случайных чисел</div>
-        
-        <div class="param-group">
-            <label>📉 От (минимум)</label>
-            <input type="number" id="minVal" value="1" step="1">
-        </div>
-        <div class="param-group">
-            <label>📈 До (максимум)</label>
-            <input type="number" id="maxVal" value="100" step="1">
-        </div>
-        <div class="param-group">
-            <label>🔢 Количество чисел</label>
-            <input type="number" id="countVal" value="1" min="1" max="1000" step="1">
-        </div>
-        
-        <div class="unique-wrapper">
-            <div id="uniqueButton" class="unique-button">
-                <span class="unique-text">✨ Без повторений (уникальные числа)</span>
-                <span id="uniqueStatus" class="unique-status">❌</span>
+<script>
+    if (!navigator.onLine) {
+        document.body.innerHTML = `
+            <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 100vh; font-family: system-ui; text-align: center; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                <div style="font-size: 4rem; margin-bottom: 20px;">📡</div>
+                <h1 style="font-size: 1.8rem; margin-bottom: 12px;">Нет соединения</h1>
+                <p style="max-width: 280px; margin-bottom: 24px;">Пожалуйста, проверьте интернет-подключение и попробуйте снова.</p>
+                <button onclick="location.reload()" style="background: white; color: #667eea; border: none; padding: 12px 28px; border-radius: 40px; font-size: 1rem; font-weight: 600;">Обновить</button>
+                <p style="margin-top: 24px; font-size: 0.8rem;">Для первого запуска требуется интернет</p>
             </div>
-            <input type="checkbox" id="uniqueCheckbox" class="hidden-checkbox">
-        </div>
-        
-        <div class="param-group">
-            <label>📊 Сортировка</label>
-            <select id="sortSelect">
-                <option value="none">Без сортировки</option>
-                <option value="asc">По возрастанию</option>
-                <option value="desc">По убыванию</option>
-            </select>
-        </div>
-        
-        <button id="generateBtn">🎲 Сгенерировать</button>
-        <button id="clearHistoryBtn" class="clear-btn">🗑️ Очистить историю</button>
-        
-        <div class="result-box">
-            <div class="result-label">✨ Результат генерации</div>
-            <div id="resultNumbers" class="result-numbers">—</div>
-            <div id="statsArea" class="stats"></div>
-            <div id="warningArea" class="warning" style="display: none;"></div>
-            <div class="history">
-                <div class="history-title">📜 История генераций</div>
-                <div id="historyList">Пока пусто</div>
-            </div>
-        </div>
-        <footer>Нажмите «Сгенерировать» для получения случайных чисел</footer>
+        `;
+        throw new Error('offline');
+    }
+</script>
+
+<div class="card">
+    <a href="index.html" class="back-btn">← На главную</a>
+    <h1>🎲 Генератор случайных чисел</h1>
+    <div class="sub">Генератор случайных чисел</div>
+    
+    <div class="param-group">
+        <label>📉 От (минимум)</label>
+        <input type="number" id="minVal" value="1" step="1">
     </div>
+    <div class="param-group">
+        <label>📈 До (максимум)</label>
+        <input type="number" id="maxVal" value="100" step="1">
+    </div>
+    <div class="param-group">
+        <label>🔢 Количество чисел</label>
+        <input type="number" id="countVal" value="1" min="1" max="1000" step="1">
+    </div>
+    
+    <div class="unique-wrapper">
+        <div id="uniqueButton" class="unique-button">
+            <span class="unique-text">✨ Без повторений (уникальные числа)</span>
+            <span id="uniqueStatus" class="unique-status">❌</span>
+        </div>
+        <input type="checkbox" id="uniqueCheckbox" class="hidden-checkbox">
+    </div>
+    
+    <div class="param-group">
+        <label>📊 Сортировка</label>
+        <select id="sortSelect">
+            <option value="none">Без сортировки</option>
+            <option value="asc">По возрастанию</option>
+            <option value="desc">По убыванию</option>
+        </select>
+    </div>
+    
+    <button id="generateBtn">🎲 Сгенерировать</button>
+    <button id="clearHistoryBtn" class="clear-btn">🗑️ Очистить историю</button>
+    
+    <div class="result-box">
+        <div class="result-label">✨ Результат генерации</div>
+        <div id="resultNumbers" class="result-numbers">—</div>
+        <div id="statsArea" class="stats"></div>
+        <div id="warningArea" class="warning" style="display: none;"></div>
+        <div class="history">
+            <div class="history-title">📜 История генераций</div>
+            <div id="historyList">Пока пусто</div>
+        </div>
+    </div>
+    <footer>Нажмите «Сгенерировать» для получения случайных чисел</footer>
+</div>
 
-    <script>
-        const minInput = document.getElementById('minVal');
-        const maxInput = document.getElementById('maxVal');
-        const countInput = document.getElementById('countVal');
-        const uniqueCheckbox = document.getElementById('uniqueCheckbox');
-        const uniqueButton = document.getElementById('uniqueButton');
-        const uniqueStatus = document.getElementById('uniqueStatus');
-        const sortSelect = document.getElementById('sortSelect');
-        const generateBtn = document.getElementById('generateBtn');
-        const clearHistoryBtn = document.getElementById('clearHistoryBtn');
-        const resultNumbersDiv = document.getElementById('resultNumbers');
-        const statsArea = document.getElementById('statsArea');
-        const warningArea = document.getElementById('warningArea');
-        const historyListDiv = document.getElementById('historyList');
-        
-        let history = [];
-        
-        function updateUniqueUI() {
-            if (uniqueCheckbox.checked) {
-                uniqueStatus.textContent = '✅';
-                uniqueStatus.classList.add('active');
-            } else {
-                uniqueStatus.textContent = '❌';
-                uniqueStatus.classList.remove('active');
-            }
+<script>
+    const minInput = document.getElementById('minVal');
+    const maxInput = document.getElementById('maxVal');
+    const countInput = document.getElementById('countVal');
+    const uniqueCheckbox = document.getElementById('uniqueCheckbox');
+    const uniqueButton = document.getElementById('uniqueButton');
+    const uniqueStatus = document.getElementById('uniqueStatus');
+    const sortSelect = document.getElementById('sortSelect');
+    const generateBtn = document.getElementById('generateBtn');
+    const clearHistoryBtn = document.getElementById('clearHistoryBtn');
+    const resultNumbersDiv = document.getElementById('resultNumbers');
+    const statsArea = document.getElementById('statsArea');
+    const warningArea = document.getElementById('warningArea');
+    const historyListDiv = document.getElementById('historyList');
+    
+    let history = [];
+    
+    function updateUniqueUI() {
+        if (uniqueCheckbox.checked) {
+            uniqueStatus.textContent = '✅';
+            uniqueStatus.classList.add('active');
+        } else {
+            uniqueStatus.textContent = '❌';
+            uniqueStatus.classList.remove('active');
         }
-        
-        uniqueButton.addEventListener('click', function() {
-            uniqueCheckbox.checked = !uniqueCheckbox.checked;
-            updateUniqueUI();
-        });
-        
+    }
+    
+    uniqueButton.addEventListener('click', function() {
+        uniqueCheckbox.checked = !uniqueCheckbox.checked;
         updateUniqueUI();
+    });
+    
+    updateUniqueUI();
+    
+    function showWarning(message) {
+        warningArea.textContent = message;
+        warningArea.style.display = 'block';
+        setTimeout(() => {
+            warningArea.style.display = 'none';
+        }, 4000);
+    }
+    
+    function generateNumbers() {
+        let min = parseInt(minInput.value);
+        let max = parseInt(maxInput.value);
+        let count = parseInt(countInput.value);
+        let unique = uniqueCheckbox.checked;
+        let sort = sortSelect.value;
         
-        function showWarning(message) {
-            warningArea.textContent = message;
-            warningArea.style.display = 'block';
-            setTimeout(() => {
-                warningArea.style.display = 'none';
-            }, 4000);
+        if (isNaN(min) || isNaN(max) || isNaN(count)) {
+            showWarning('Заполните все поля числами.');
+            return;
+        }
+        if (min >= max) {
+            showWarning('Минимум должен быть меньше максимума.');
+            return;
+        }
+        if (count < 1) {
+            showWarning('Количество чисел должно быть не менее 1.');
+            return;
+        }
+        if (unique && count > (max - min + 1)) {
+            showWarning(`Невозможно сгенерировать ${count} уникальных чисел в диапазоне ${min}–${max}.`);
+            return;
+        }
+        if (count > 1000) {
+            showWarning('Максимум — 1000 чисел.');
+            return;
         }
         
-        function generateNumbers() {
-            let min = parseInt(minInput.value);
-            let max = parseInt(maxInput.value);
-            let count = parseInt(countInput.value);
-            let unique = uniqueCheckbox.checked;
-            let sort = sortSelect.value;
-            
-            if (isNaN(min) || isNaN(max) || isNaN(count)) {
-                showWarning('Заполните все поля числами.');
-                return;
+        let numbers = [];
+        if (unique) {
+            let allNumbers = [];
+            for (let i = min; i <= max; i++) allNumbers.push(i);
+            for (let i = allNumbers.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [allNumbers[i], allNumbers[j]] = [allNumbers[j], allNumbers[i]];
             }
-            if (min >= max) {
-                showWarning('Минимум должен быть меньше максимума.');
-                return;
+            numbers = allNumbers.slice(0, count);
+        } else {
+            for (let i = 0; i < count; i++) {
+                let num = Math.floor(Math.random() * (max - min + 1)) + min;
+                numbers.push(num);
             }
-            if (count < 1) {
-                showWarning('Количество чисел должно быть не менее 1.');
-                return;
-            }
-            if (unique && count > (max - min + 1)) {
-                showWarning(`Невозможно сгенерировать ${count} уникальных чисел в диапазоне ${min}–${max}.`);
-                return;
-            }
-            if (count > 1000) {
-                showWarning('Максимум — 1000 чисел.');
-                return;
-            }
-            
-            let numbers = [];
-            if (unique) {
-                let allNumbers = [];
-                for (let i = min; i <= max; i++) allNumbers.push(i);
-                for (let i = allNumbers.length - 1; i > 0; i--) {
-                    const j = Math.floor(Math.random() * (i + 1));
-                    [allNumbers[i], allNumbers[j]] = [allNumbers[j], allNumbers[i]];
-                }
-                numbers = allNumbers.slice(0, count);
-            } else {
-                for (let i = 0; i < count; i++) {
-                    let num = Math.floor(Math.random() * (max - min + 1)) + min;
-                    numbers.push(num);
-                }
-            }
-            
-            if (sort === 'asc') {
-                numbers.sort((a, b) => a - b);
-            } else if (sort === 'desc') {
-                numbers.sort((a, b) => b - a);
-            }
-            
-            resultNumbersDiv.innerHTML = numbers.join(', ');
-            
-            let statsText = `Диапазон: ${min}–${max} | Кол-во: ${count} | Уникальные: ${unique ? 'Да' : 'Нет'}`;
-            if (unique && numbers.length > 0) {
-                let minNum = Math.min(...numbers);
-                let maxNum = Math.max(...numbers);
-                statsText += ` | Min: ${minNum} | Max: ${maxNum}`;
-            }
-            statsArea.innerHTML = statsText;
-            
-            let historyItem = {
-                numbers: numbers.slice(0, 10),
-                min: min,
-                max: max,
-                count: count,
-                timestamp: new Date().toLocaleTimeString()
-            };
-            history.unshift(historyItem);
-            if (history.length > 20) history.pop();
-            updateHistoryDisplay();
         }
         
-        function updateHistoryDisplay() {
-            if (history.length === 0) {
-                historyListDiv.innerHTML = 'Пока пусто';
-                return;
-            }
-            let html = '';
-            for (let item of history) {
-                let numbersPreview = item.numbers.join(', ');
-                if (item.numbers.length > 5) numbersPreview += '...';
-                html += `<div class="history-item">[${item.timestamp}] ${numbersPreview} (${item.min}–${item.max}, ${item.count} шт.)</div>`;
-            }
-            historyListDiv.innerHTML = html;
+        if (sort === 'asc') {
+            numbers.sort((a, b) => a - b);
+        } else if (sort === 'desc') {
+            numbers.sort((a, b) => b - a);
         }
         
-        function clearHistory() {
-            history = [];
-            updateHistoryDisplay();
-            showWarning('История очищена.');
+        resultNumbersDiv.innerHTML = numbers.join(', ');
+        
+        let statsText = `Диапазон: ${min}–${max} | Кол-во: ${count} | Уникальные: ${unique ? 'Да' : 'Нет'}`;
+        if (unique && numbers.length > 0) {
+            let minNum = Math.min(...numbers);
+            let maxNum = Math.max(...numbers);
+            statsText += ` | Min: ${minNum} | Max: ${maxNum}`;
         }
+        statsArea.innerHTML = statsText;
         
-        generateBtn.addEventListener('click', generateNumbers);
-        clearHistoryBtn.addEventListener('click', clearHistory);
-        
-        resultNumbersDiv.innerHTML = '—';
-        statsArea.innerHTML = '';
-    </script>
+        let historyItem = {
+            numbers: numbers.slice(0, 10),
+            min: min,
+            max: max,
+            count: count,
+            timestamp: new Date().toLocaleTimeString()
+        };
+        history.unshift(historyItem);
+        if (history.length > 20) history.pop();
+        updateHistoryDisplay();
+    }
+    
+    function updateHistoryDisplay() {
+        if (history.length === 0) {
+            historyListDiv.innerHTML = 'Пока пусто';
+            return;
+        }
+        let html = '';
+        for (let item of history) {
+            let numbersPreview = item.numbers.join(', ');
+            if (item.numbers.length > 5) numbersPreview += '...';
+            html += `<div class="history-item">[${item.timestamp}] ${numbersPreview} (${item.min}–${item.max}, ${item.count} шт.)</div>`;
+        }
+        historyListDiv.innerHTML = html;
+    }
+    
+    function clearHistory() {
+        history = [];
+        updateHistoryDisplay();
+        showWarning('История очищена.');
+    }
+    
+    generateBtn.addEventListener('click', generateNumbers);
+    clearHistoryBtn.addEventListener('click', clearHistory);
+    
+    resultNumbersDiv.innerHTML = '—';
+    statsArea.innerHTML = '';
+</script>
+
+<script>
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/g-random/sw.js').catch(console.log);
+    }
+</script>
 </body>
 </html>
