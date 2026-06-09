@@ -163,6 +163,22 @@
     </style>
 </head>
 <body>
+
+<script>
+    if (!navigator.onLine) {
+        document.body.innerHTML = `
+            <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 100vh; font-family: system-ui; text-align: center; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                <div style="font-size: 4rem; margin-bottom: 20px;">📡</div>
+                <h1 style="font-size: 1.8rem; margin-bottom: 12px;">Нет соединения</h1>
+                <p style="max-width: 280px; margin-bottom: 24px;">Пожалуйста, проверьте интернет-подключение и попробуйте снова.</p>
+                <button onclick="location.reload()" style="background: white; color: #667eea; border: none; padding: 12px 28px; border-radius: 40px; font-size: 1rem; font-weight: 600;">Обновить</button>
+                <p style="margin-top: 24px; font-size: 0.8rem;">Для первого запуска требуется интернет</p>
+            </div>
+        `;
+        throw new Error('offline');
+    }
+</script>
+
 <div class="container">
     <a href="index.html" class="back-btn">← На главную</a>
     <h1>🔄 Колесо на выбывание</h1>
@@ -214,7 +230,6 @@
     let currentAngle = 0;
     let spinning = false;
     let animFrame = null;
-    let finalResult = null; // Сохраняем результат до удаления
     
     function parseOptions() {
         return optionsInput.value.split(/\r?\n/).filter(opt => opt.trim().length > 0);
@@ -265,7 +280,6 @@
             ctx.restore();
         }
         
-        // Рисуем маленький кружок в центре
         ctx.beginPath();
         ctx.arc(cx, cy, 15, 0, 2 * Math.PI);
         ctx.fillStyle = '#ffffff';
@@ -275,12 +289,10 @@
         ctx.stroke();
     }
     
-    function getCurrentOptionAtAngle(angle) {
+    function getCurrentOption() {
         if (currentOptions.length === 0) return null;
-        // Стрелка всегда сверху (угол -PI/2)
         const arrowAngle = -Math.PI / 2;
-        // Вычисляем, какой сектор находится под стрелкой при данном угле поворота колеса
-        let raw = (arrowAngle - angle + 2 * Math.PI) % (2 * Math.PI);
+        let raw = (arrowAngle - currentAngle + 2 * Math.PI) % (2 * Math.PI);
         const step = (2 * Math.PI) / currentOptions.length;
         let idx = Math.floor(raw / step) % currentOptions.length;
         return currentOptions[idx];
@@ -303,7 +315,6 @@
         const duration = 2000;
         const startTime = performance.now();
         const startAngle = currentAngle;
-        // Случайное количество полных оборотов (8-12) + случайный доворот
         const fullTurns = 8 + Math.random() * 5;
         const randomOffset = Math.random() * 2 * Math.PI;
         const targetDelta = fullTurns * 2 * Math.PI + randomOffset;
@@ -311,7 +322,6 @@
         function animate(now) {
             const elapsed = now - startTime;
             let t = Math.min(1, elapsed / duration);
-            // Плавное замедление
             const ease = 1 - Math.pow(1 - t, 3);
             currentAngle = startAngle + targetDelta * ease;
             drawWheel();
@@ -319,33 +329,18 @@
             if (t < 1) {
                 animFrame = requestAnimationFrame(animate);
             } else {
-                // Фиксируем финальный угол
-                const finalAngle = (startAngle + targetDelta) % (2 * Math.PI);
-                currentAngle = finalAngle;
+                currentAngle = (startAngle + targetDelta) % (2 * Math.PI);
                 drawWheel();
-                
-                // Определяем результат ПОСЛЕ полной остановки
-                const result = getCurrentOptionAtAngle(currentAngle);
-                
                 spinning = false;
-                
+                const result = getCurrentOption();
                 if (result) {
-                    // Показываем результат
                     resultDisplay.textContent = result;
-                    
-                    // Добавляем в список выбывших
-                    eliminated.unshift(result);
-                    
-                    // Удаляем из текущих
                     const idx = currentOptions.indexOf(result);
                     if (idx !== -1) {
                         currentOptions.splice(idx, 1);
+                        eliminated.unshift(result);
                     }
-                    
-                    // Обновляем отображение
                     updateDisplay();
-                    
-                    // Перерисовываем колесо без выбывшего
                     if (currentOptions.length > 0) {
                         drawWheel();
                     } else {
@@ -386,7 +381,6 @@
         return str.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'})[m]);
     }
     
-    // Пример по умолчанию
     optionsInput.value = "Герман\nЭмир\nАртур\nАндрей\nМаксим";
     updateWheel();
     
@@ -394,6 +388,12 @@
     resetBtn.addEventListener('click', resetGame);
     updateWheelBtn.addEventListener('click', updateWheel);
     canvas.addEventListener('click', spinWheel);
+</script>
+
+<script>
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/g-random/sw.js').catch(console.log);
+    }
 </script>
 </body>
 </html>
