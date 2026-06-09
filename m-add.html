@@ -111,6 +111,7 @@
             background: linear-gradient(135deg, #43a047 0%, #1b5e20 100%);
         }
 
+        /* Модальное окно выбора источника */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -132,6 +133,59 @@
             width: 90%;
             overflow: hidden;
             animation: modalFadeIn 0.2s ease;
+        }
+
+        /* Модальное окно ошибки */
+        .error-dialog {
+            background: white;
+            border-radius: 28px;
+            max-width: 300px;
+            width: 90%;
+            overflow: hidden;
+            animation: modalFadeIn 0.2s ease;
+            text-align: center;
+        }
+
+        .error-header {
+            padding: 24px 20px 0 20px;
+            text-align: center;
+        }
+
+        .error-header .error-icon {
+            font-size: 3rem;
+            margin-bottom: 12px;
+        }
+
+        .error-header h3 {
+            font-size: 1.3rem;
+            color: #1f2937;
+            margin-bottom: 8px;
+        }
+
+        .error-header p {
+            color: #6b7280;
+            font-size: 0.85rem;
+        }
+
+        .error-actions {
+            padding: 20px;
+        }
+
+        .error-btn {
+            background: #1e88e5;
+            color: white;
+            border: none;
+            border-radius: 40px;
+            padding: 12px 20px;
+            width: 100%;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .error-btn:active {
+            background: #0b5e8a;
+            transform: scale(0.97);
         }
 
         @keyframes modalFadeIn {
@@ -221,24 +275,45 @@
 <body>
 
 <script>
+    // Функции для модального окна выбора источника
     function showInstallDialog() {
         const modal = document.getElementById('installModal');
         if (modal) modal.style.display = 'flex';
     }
 
-    function closeModal() {
+    function closeInstallModal() {
         const modal = document.getElementById('installModal');
         if (modal) modal.style.display = 'none';
     }
 
     function downloadAPK() {
         window.open('https://g-pc.github.io/g-random/G-RANDOM_android.apk', '_blank');
-        closeModal();
+        closeInstallModal();
     }
 
     function openRuStore() {
         window.open('https://www.rustore.ru/catalog/app/com.gpc.grandom', '_blank');
-        closeModal();
+        closeInstallModal();
+    }
+
+    // Функции для модального окна ошибки интернета
+    function showNoInternetDialog() {
+        const modal = document.getElementById('noInternetModal');
+        if (modal) modal.style.display = 'flex';
+    }
+
+    function closeNoInternetModal() {
+        const modal = document.getElementById('noInternetModal');
+        if (modal) modal.style.display = 'none';
+    }
+
+    // Функция открытия PDF с проверкой интернета
+    function openPDFWithCheck() {
+        if (!navigator.onLine) {
+            showNoInternetDialog();
+        } else {
+            window.open('MAFIA_roles.pdf', '_blank');
+        }
     }
 </script>
 
@@ -247,17 +322,18 @@
     <h1>⚙️ Дополнительное</h1>
     <div class="subtitle">Полезные материалы и инструменты</div>
     <div class="cards">
-        <a href="MAFIA_roles.pdf" class="card" target="_blank">
+        <!-- Карточка PDF с проверкой интернета -->
+        <div class="card" onclick="openPDFWithCheck()">
             <div class="card-icon">📖</div>
             <div class="card-title">Описание ролей</div>
             <div class="card-desc">Описание ролей для игры в Мафию в порядке их действий (PDF)</div>
-        </a>
+        </div>
         <a href="https://forms.gle/PZy9AYrx8xLGtZmh8" class="card" target="_blank">
             <div class="card-icon">📧</div>
             <div class="card-title">Обратная связь</div>
             <div class="card-desc">Сообщите о проблеме, задайте вопрос или поделитесь идеей</div>
         </a>
-        <!-- Кнопка установки приложения (видна на Android в браузере) -->
+        <!-- Кнопка установки приложения -->
         <div id="installCard" class="card install-card">
             <div class="card-icon">📲</div>
             <div class="card-title">Установить приложение</div>
@@ -267,7 +343,7 @@
 </div>
 
 <!-- Модальное окно выбора источника -->
-<div id="installModal" class="modal-overlay" onclick="if(event.target===this) closeModal()">
+<div id="installModal" class="modal-overlay" onclick="if(event.target===this) closeInstallModal()">
     <div class="modal-dialog">
         <div class="modal-header">
             <h3>📲 Установить приложение</h3>
@@ -290,15 +366,28 @@
                 </div>
                 <span>→</span>
             </button>
-            <button class="modal-btn cancel-btn" onclick="closeModal()">
+            <button class="modal-btn cancel-btn" onclick="closeInstallModal()">
                 Отмена
             </button>
         </div>
     </div>
 </div>
 
+<!-- Модальное окно ошибки интернета для PDF -->
+<div id="noInternetModal" class="modal-overlay" onclick="if(event.target===this) closeNoInternetModal()">
+    <div class="error-dialog">
+        <div class="error-header">
+            <div class="error-icon">📡</div>
+            <h3>Нет соединения</h3>
+            <p>Для открытия файла «Описание ролей» требуется интернет-соединение.</p>
+        </div>
+        <div class="error-actions">
+            <button class="error-btn" onclick="closeNoInternetModal()">Хорошо</button>
+        </div>
+    </div>
+</div>
+
 <script>
-    // Определяем устройство и настраиваем кнопку
     (function() {
         const installCard = document.getElementById('installCard');
         if (!installCard) return;
