@@ -111,7 +111,6 @@
             background: linear-gradient(135deg, #43a047 0%, #1b5e20 100%);
         }
 
-        /* Стили для модального окна выбора */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -222,7 +221,6 @@
 <body>
 
 <script>
-    // Функция для показа модального окна
     function showInstallDialog() {
         const modal = document.getElementById('installModal');
         if (modal) modal.style.display = 'flex';
@@ -248,7 +246,7 @@
     <a href="index.html" class="back-btn">← На главную</a>
     <h1>⚙️ Дополнительное</h1>
     <div class="subtitle">Полезные материалы и инструменты</div>
-    <div class="cards" id="cardsContainer">
+    <div class="cards">
         <a href="MAFIA_roles.pdf" class="card" target="_blank">
             <div class="card-icon">📖</div>
             <div class="card-title">Описание ролей</div>
@@ -259,10 +257,11 @@
             <div class="card-title">Обратная связь</div>
             <div class="card-desc">Сообщите о проблеме, задайте вопрос или поделитесь идеей</div>
         </a>
-        <div id="installCard" class="card install-card" style="display: none;">
-            <div id="installIcon" class="card-icon">📲</div>
-            <div id="installTitle" class="card-title">Установить приложение</div>
-            <div id="installDesc" class="card-desc">Скачайте APK или перейдите в RuStore</div>
+        <!-- Кнопка установки приложения (видна на Android в браузере) -->
+        <div id="installCard" class="card install-card">
+            <div class="card-icon">📲</div>
+            <div class="card-title">Установить приложение</div>
+            <div class="card-desc">Выберите источник: APK или RuStore</div>
         </div>
     </div>
 </div>
@@ -299,46 +298,43 @@
 </div>
 
 <script>
-    function getDeviceType() {
+    // Определяем устройство и настраиваем кнопку
+    (function() {
+        const installCard = document.getElementById('installCard');
+        if (!installCard) return;
+        
         const ua = navigator.userAgent.toLowerCase();
         const isAndroid = ua.includes('android');
         const isIOS = /iphone|ipad|ipod/.test(ua);
         const isWebView = ua.includes('wv') || (ua.includes('android') && !ua.includes('chrome'));
-        return { isAndroid, isIOS, isWebView };
-    }
-
-    function setupInstallButton() {
-        const installCard = document.getElementById('installCard');
-        if (!installCard) return;
         
-        const { isAndroid, isIOS, isWebView } = getDeviceType();
-        
-        // Внутри APK — скрываем кнопку
+        // Если внутри APK — скрываем кнопку
         if (isWebView) {
             installCard.style.display = 'none';
             return;
         }
         
-        installCard.style.display = 'block';
-        
+        // На Android показываем кнопку с модальным окном
         if (isAndroid) {
-            document.getElementById('installIcon').textContent = '📲';
-            document.getElementById('installTitle').textContent = 'Установить приложение';
-            document.getElementById('installDesc').textContent = 'Выберите источник: APK или RuStore';
+            installCard.style.display = 'block';
             installCard.onclick = () => showInstallDialog();
         } 
+        // На iPhone показываем инструкцию
         else if (isIOS) {
-            document.getElementById('installIcon').textContent = '📱';
-            document.getElementById('installTitle').textContent = 'Добавить на главный экран';
-            document.getElementById('installDesc').textContent = 'Как установить наш сайт как приложение на iPhone';
+            installCard.style.display = 'block';
+            const icon = installCard.querySelector('.card-icon');
+            const title = installCard.querySelector('.card-title');
+            const desc = installCard.querySelector('.card-desc');
+            if (icon) icon.textContent = '📱';
+            if (title) title.textContent = 'Добавить на главный экран';
+            if (desc) desc.textContent = 'Как установить наш сайт как приложение на iPhone';
             installCard.onclick = () => alert('Нажмите «Поделиться» → «На экран «Домой»»');
         }
         else {
+            // На компьютере скрываем
             installCard.style.display = 'none';
         }
-    }
-
-    setupInstallButton();
+    })();
 </script>
 
 </body>
