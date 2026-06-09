@@ -161,20 +161,7 @@
 </head>
 <body>
 
-<script>
-    if (!navigator.onLine) {
-        document.body.innerHTML = `
-            <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 100vh; font-family: system-ui; text-align: center; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
-                <div style="font-size: 4rem; margin-bottom: 20px;">📡</div>
-                <h1 style="font-size: 1.8rem; margin-bottom: 12px;">Нет соединения</h1>
-                <p style="max-width: 280px; margin-bottom: 24px;">Пожалуйста, проверьте интернет-подключение и попробуйте снова.</p>
-                <button onclick="location.reload()" style="background: white; color: #667eea; border: none; padding: 12px 28px; border-radius: 40px; font-size: 1rem; font-weight: 600;">Обновить</button>
-                <p style="margin-top: 24px; font-size: 0.8rem;">Для первого запуска требуется интернет</p>
-            </div>
-        `;
-        throw new Error('offline');
-    }
-</script>
+
 
 <div class="card">
     <a href="index.html" class="back-btn">← На главную</a>
@@ -385,10 +372,6 @@
     canvas.addEventListener('click', spinWheel);
 </script>
 
-<script>
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/g-random/sw.js').catch(console.log);
-    }
-</script>
+
 </body>
 </html>
