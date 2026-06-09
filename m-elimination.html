@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
     <title>Колесо на выбывание — Мобильный</title>
+    <link rel="icon" type="image/x-icon" href="/g-random/favicon.ico">
     <style>
         * {
             box-sizing: border-box;
@@ -159,239 +160,235 @@
     </style>
 </head>
 <body>
-    <!-- ПРОВЕРКА ИНТЕРНЕТА -->
-    <script>
-        (function() {
-            function showOfflinePage() {
-                document.body.innerHTML = '';
-                document.body.style.margin = '0';
-                document.body.style.padding = '0';
-                const div = document.createElement('div');
-                div.style.cssText = 'display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 100vh; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; text-align: center; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;';
-                div.innerHTML = `
-                    <div style="font-size: 4rem; margin-bottom: 20px;">📡</div>
-                    <h1 style="font-size: 1.8rem; margin-bottom: 12px;">Нет соединения</h1>
-                    <p style="max-width: 280px; opacity: 0.9; margin-bottom: 24px;">Пожалуйста, проверьте интернет-подключение и попробуйте снова.</p>
-                    <button id="reloadBtn" style="background: white; color: #667eea; border: none; padding: 12px 28px; border-radius: 40px; font-size: 1rem; font-weight: 600; cursor: pointer;">Обновить</button>
-                    <p style="margin-top: 24px; font-size: 0.8rem; opacity: 0.7;">Некоторые функции могут быть недоступны без интернета</p>
-                `;
-                document.body.appendChild(div);
-                const btn = document.getElementById('reloadBtn');
-                if (btn) btn.onclick = () => location.reload();
-            }
-            if (!navigator.onLine) showOfflinePage();
-            window.addEventListener('offline', () => showOfflinePage());
-            window.addEventListener('online', () => location.reload());
-        })();
-    </script>
 
-    <div class="card">
-        <a href="index.html" class="back-btn">← На главную</a>
-        <h1>🔄 Колесо на выбывание</h1>
-        <div class="sub">Каждый выпавший вариант удаляется</div>
-        
-        <div class="wheel-container">
-            <canvas id="wheelCanvas" width="400" height="400"></canvas>
-            <div class="pointer"></div>
-        </div>
-        
-        <button id="spinBtn">🎡 Крутить (на выбывание)</button>
-        <button id="resetBtn" class="reset-btn">🔄 Сбросить все варианты</button>
-        
-        <label>📝 Варианты (каждый с новой строки)</label>
-        <textarea id="optionsInput" rows="4" placeholder="Герман&#10;Эмир&#10;Артур&#10;Андрей&#10;Максим"></textarea>
-        <button id="updateWheelBtn">🔄 Обновить колесо</button>
-        
-        <div class="result">
-            <div style="font-size: 0.8rem; color: #4b5563;">Выпал(а):</div>
-            <div id="resultDisplay" class="result-value">—</div>
-        </div>
-        
-        <div class="remaining-count" id="remainingCount"></div>
-        
-        <div class="eliminated-list">
-            <div style="font-weight: 600; margin-bottom: 6px;">❌ Выбывшие</div>
-            <div id="eliminatedList"></div>
-        </div>
-        
-        <footer>Нажмите на колесо, чтобы крутить</footer>
+<script>
+    if (!navigator.onLine) {
+        document.body.innerHTML = `
+            <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 100vh; font-family: system-ui; text-align: center; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                <div style="font-size: 4rem; margin-bottom: 20px;">📡</div>
+                <h1 style="font-size: 1.8rem; margin-bottom: 12px;">Нет соединения</h1>
+                <p style="max-width: 280px; margin-bottom: 24px;">Пожалуйста, проверьте интернет-подключение и попробуйте снова.</p>
+                <button onclick="location.reload()" style="background: white; color: #667eea; border: none; padding: 12px 28px; border-radius: 40px; font-size: 1rem; font-weight: 600;">Обновить</button>
+                <p style="margin-top: 24px; font-size: 0.8rem;">Для первого запуска требуется интернет</p>
+            </div>
+        `;
+        throw new Error('offline');
+    }
+</script>
+
+<div class="card">
+    <a href="index.html" class="back-btn">← На главную</a>
+    <h1>🔄 Колесо на выбывание</h1>
+    <div class="sub">Каждый выпавший вариант удаляется</div>
+    
+    <div class="wheel-container">
+        <canvas id="wheelCanvas" width="400" height="400"></canvas>
+        <div class="pointer"></div>
     </div>
+    
+    <button id="spinBtn">🎡 Крутить (на выбывание)</button>
+    <button id="resetBtn" class="reset-btn">🔄 Сбросить все варианты</button>
+    
+    <label>📝 Варианты (каждый с новой строки)</label>
+    <textarea id="optionsInput" rows="4" placeholder="Герман&#10;Эмир&#10;Артур&#10;Андрей&#10;Максим"></textarea>
+    <button id="updateWheelBtn">🔄 Обновить колесо</button>
+    
+    <div class="result">
+        <div style="font-size: 0.8rem; color: #4b5563;">Выпал(а):</div>
+        <div id="resultDisplay" class="result-value">—</div>
+    </div>
+    
+    <div class="remaining-count" id="remainingCount"></div>
+    
+    <div class="eliminated-list">
+        <div style="font-weight: 600; margin-bottom: 6px;">❌ Выбывшие</div>
+        <div id="eliminatedList"></div>
+    </div>
+    
+    <footer>Нажмите на колесо, чтобы крутить</footer>
+</div>
 
-    <script>
-        const canvas = document.getElementById('wheelCanvas');
-        const ctx = canvas.getContext('2d');
-        const optionsInput = document.getElementById('optionsInput');
-        const spinBtn = document.getElementById('spinBtn');
-        const resetBtn = document.getElementById('resetBtn');
-        const updateWheelBtn = document.getElementById('updateWheelBtn');
-        const resultDisplay = document.getElementById('resultDisplay');
-        const eliminatedListDiv = document.getElementById('eliminatedList');
-        const remainingCountSpan = document.getElementById('remainingCount');
+<script>
+    const canvas = document.getElementById('wheelCanvas');
+    const ctx = canvas.getContext('2d');
+    const optionsInput = document.getElementById('optionsInput');
+    const spinBtn = document.getElementById('spinBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const updateWheelBtn = document.getElementById('updateWheelBtn');
+    const resultDisplay = document.getElementById('resultDisplay');
+    const eliminatedListDiv = document.getElementById('eliminatedList');
+    const remainingCountSpan = document.getElementById('remainingCount');
+    
+    let allOptions = [];
+    let currentOptions = [];
+    let eliminated = [];
+    let currentAngle = 0;
+    let spinning = false;
+    let animFrame = null;
+    
+    function parseOptions() {
+        return optionsInput.value.split(/\r?\n/).filter(opt => opt.trim().length > 0);
+    }
+    
+    function drawWheel() {
+        if (!ctx) return;
+        const w = canvas.width;
+        const h = canvas.height;
+        const cx = w / 2;
+        const cy = h / 2;
+        const r = w * 0.42;
         
-        let allOptions = [];
-        let currentOptions = [];
-        let eliminated = [];
-        let currentAngle = 0;
-        let spinning = false;
-        let animFrame = null;
+        ctx.clearRect(0, 0, w, h);
         
-        function parseOptions() {
-            return optionsInput.value.split(/\r?\n/).filter(opt => opt.trim().length > 0);
+        if (currentOptions.length === 0) {
+            ctx.fillStyle = '#e2e8f0';
+            ctx.beginPath();
+            ctx.arc(cx, cy, r, 0, 2 * Math.PI);
+            ctx.fill();
+            ctx.fillStyle = '#64748b';
+            ctx.font = 'bold 14px sans-serif';
+            ctx.fillText('Все выбыли!', cx - 60, cy);
+            return;
         }
         
-        function drawWheel() {
-            if (!ctx) return;
-            const w = canvas.width;
-            const h = canvas.height;
-            const cx = w / 2;
-            const cy = h / 2;
-            const r = w * 0.42;
-            
-            ctx.clearRect(0, 0, w, h);
-            
-            if (currentOptions.length === 0) {
-                ctx.fillStyle = '#e2e8f0';
-                ctx.beginPath();
-                ctx.arc(cx, cy, r, 0, 2 * Math.PI);
-                ctx.fill();
-                ctx.fillStyle = '#64748b';
-                ctx.font = 'bold 14px sans-serif';
-                ctx.fillText('Все выбыли!', cx - 60, cy);
-                return;
-            }
-            
-            const angleStep = (2 * Math.PI) / currentOptions.length;
-            const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD', '#F0E68C', '#87CEEB', '#FFB347', '#77DD77', '#FF9999', '#99CC99'];
-            
-            for (let i = 0; i < currentOptions.length; i++) {
-                const start = i * angleStep + currentAngle;
-                const end = (i + 1) * angleStep + currentAngle;
-                
-                ctx.beginPath();
-                ctx.arc(cx, cy, r, start, end);
-                ctx.lineTo(cx, cy);
-                ctx.fillStyle = colors[i % colors.length];
-                ctx.fill();
-                
-                ctx.save();
-                ctx.translate(cx, cy);
-                ctx.rotate(start + angleStep / 2);
-                ctx.fillStyle = '#1f2937';
-                ctx.font = 'bold 11px sans-serif';
-                let text = currentOptions[i];
-                if (text.length > 12) text = text.slice(0, 10) + '..';
-                ctx.fillText(text, r * 0.65, 5);
-                ctx.restore();
-            }
+        const angleStep = (2 * Math.PI) / currentOptions.length;
+        const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD', '#F0E68C', '#87CEEB', '#FFB347', '#77DD77', '#FF9999', '#99CC99'];
+        
+        for (let i = 0; i < currentOptions.length; i++) {
+            const start = i * angleStep + currentAngle;
+            const end = (i + 1) * angleStep + currentAngle;
             
             ctx.beginPath();
-            ctx.arc(cx, cy, 12, 0, 2 * Math.PI);
-            ctx.fillStyle = '#ffffff';
+            ctx.arc(cx, cy, r, start, end);
+            ctx.lineTo(cx, cy);
+            ctx.fillStyle = colors[i % colors.length];
             ctx.fill();
-            ctx.strokeStyle = '#cbd5e1';
-            ctx.lineWidth = 2;
-            ctx.stroke();
+            
+            ctx.save();
+            ctx.translate(cx, cy);
+            ctx.rotate(start + angleStep / 2);
+            ctx.fillStyle = '#1f2937';
+            ctx.font = 'bold 11px sans-serif';
+            let text = currentOptions[i];
+            if (text.length > 12) text = text.slice(0, 10) + '..';
+            ctx.fillText(text, r * 0.65, 5);
+            ctx.restore();
         }
         
-        function getCurrentOption() {
-            if (currentOptions.length === 0) return null;
-            const arrowAngle = -Math.PI / 2;
-            let raw = (arrowAngle - currentAngle + 2 * Math.PI) % (2 * Math.PI);
-            const step = (2 * Math.PI) / currentOptions.length;
-            let idx = Math.floor(raw / step) % currentOptions.length;
-            return currentOptions[idx];
+        ctx.beginPath();
+        ctx.arc(cx, cy, 12, 0, 2 * Math.PI);
+        ctx.fillStyle = '#ffffff';
+        ctx.fill();
+        ctx.strokeStyle = '#cbd5e1';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+    }
+    
+    function getCurrentOption() {
+        if (currentOptions.length === 0) return null;
+        const arrowAngle = -Math.PI / 2;
+        let raw = (arrowAngle - currentAngle + 2 * Math.PI) % (2 * Math.PI);
+        const step = (2 * Math.PI) / currentOptions.length;
+        let idx = Math.floor(raw / step) % currentOptions.length;
+        return currentOptions[idx];
+    }
+    
+    function updateDisplay() {
+        remainingCountSpan.innerHTML = `🎯 Осталось: ${currentOptions.length}`;
+        if (eliminated.length === 0) {
+            eliminatedListDiv.innerHTML = '<div style="color: #6c757d;">Пока никто не выбыл</div>';
+        } else {
+            eliminatedListDiv.innerHTML = eliminated.map(e => `<div class="eliminated-item">• ${escapeHtml(e)}</div>`).join('');
         }
+        spinBtn.disabled = currentOptions.length === 0;
+    }
+    
+    function spinWheel() {
+        if (spinning || currentOptions.length === 0) return;
+        spinning = true;
         
-        function updateDisplay() {
-            remainingCountSpan.innerHTML = `🎯 Осталось: ${currentOptions.length}`;
-            if (eliminated.length === 0) {
-                eliminatedListDiv.innerHTML = '<div style="color: #6c757d;">Пока никто не выбыл</div>';
+        const duration = 2000;
+        const startTime = performance.now();
+        const startAngle = currentAngle;
+        const fullTurns = 8 + Math.random() * 5;
+        const randomOffset = Math.random() * 2 * Math.PI;
+        const targetDelta = fullTurns * 2 * Math.PI + randomOffset;
+        
+        function animate(now) {
+            const elapsed = now - startTime;
+            let t = Math.min(1, elapsed / duration);
+            const ease = 1 - Math.pow(1 - t, 3);
+            currentAngle = startAngle + targetDelta * ease;
+            drawWheel();
+            
+            if (t < 1) {
+                animFrame = requestAnimationFrame(animate);
             } else {
-                eliminatedListDiv.innerHTML = eliminated.map(e => `<div class="eliminated-item">• ${escapeHtml(e)}</div>`).join('');
-            }
-            spinBtn.disabled = currentOptions.length === 0;
-        }
-        
-        function spinWheel() {
-            if (spinning || currentOptions.length === 0) return;
-            spinning = true;
-            
-            const duration = 2000;
-            const startTime = performance.now();
-            const startAngle = currentAngle;
-            const fullTurns = 8 + Math.random() * 5;
-            const randomOffset = Math.random() * 2 * Math.PI;
-            const targetDelta = fullTurns * 2 * Math.PI + randomOffset;
-            
-            function animate(now) {
-                const elapsed = now - startTime;
-                let t = Math.min(1, elapsed / duration);
-                const ease = 1 - Math.pow(1 - t, 3);
-                currentAngle = startAngle + targetDelta * ease;
+                currentAngle = (startAngle + targetDelta) % (2 * Math.PI);
                 drawWheel();
-                
-                if (t < 1) {
-                    animFrame = requestAnimationFrame(animate);
-                } else {
-                    currentAngle = (startAngle + targetDelta) % (2 * Math.PI);
-                    drawWheel();
-                    spinning = false;
-                    const result = getCurrentOption();
-                    if (result) {
-                        resultDisplay.textContent = result;
-                        const idx = currentOptions.indexOf(result);
-                        if (idx !== -1) {
-                            currentOptions.splice(idx, 1);
-                            eliminated.unshift(result);
-                        }
-                        updateDisplay();
-                        if (currentOptions.length > 0) {
-                            drawWheel();
-                        } else {
-                            resultDisplay.textContent = '🏆 Все выбыли!';
-                            drawWheel();
-                        }
+                spinning = false;
+                const result = getCurrentOption();
+                if (result) {
+                    resultDisplay.textContent = result;
+                    const idx = currentOptions.indexOf(result);
+                    if (idx !== -1) {
+                        currentOptions.splice(idx, 1);
+                        eliminated.unshift(result);
                     }
-                    animFrame = null;
+                    updateDisplay();
+                    if (currentOptions.length > 0) {
+                        drawWheel();
+                    } else {
+                        resultDisplay.textContent = '🏆 Все выбыли!';
+                        drawWheel();
+                    }
                 }
+                animFrame = null;
             }
-            
-            if (animFrame) cancelAnimationFrame(animFrame);
-            animFrame = requestAnimationFrame(animate);
         }
         
-        function resetGame() {
-            if (spinning) return;
-            currentOptions = [...allOptions];
-            eliminated = [];
-            currentAngle = 0;
-            resultDisplay.textContent = '—';
-            updateDisplay();
-            drawWheel();
-        }
-        
-        function updateWheel() {
-            if (spinning) return;
-            allOptions = parseOptions();
-            currentOptions = [...allOptions];
-            eliminated = [];
-            currentAngle = 0;
-            resultDisplay.textContent = '—';
-            updateDisplay();
-            drawWheel();
-        }
-        
-        function escapeHtml(str) {
-            return str.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'})[m]);
-        }
-        
-        optionsInput.value = "Герман\nЭмир\nАртур\nАндрей\nМаксим";
-        updateWheel();
-        
-        spinBtn.addEventListener('click', spinWheel);
-        resetBtn.addEventListener('click', resetGame);
-        updateWheelBtn.addEventListener('click', updateWheel);
-        canvas.addEventListener('click', spinWheel);
-    </script>
+        if (animFrame) cancelAnimationFrame(animFrame);
+        animFrame = requestAnimationFrame(animate);
+    }
+    
+    function resetGame() {
+        if (spinning) return;
+        currentOptions = [...allOptions];
+        eliminated = [];
+        currentAngle = 0;
+        resultDisplay.textContent = '—';
+        updateDisplay();
+        drawWheel();
+    }
+    
+    function updateWheel() {
+        if (spinning) return;
+        allOptions = parseOptions();
+        currentOptions = [...allOptions];
+        eliminated = [];
+        currentAngle = 0;
+        resultDisplay.textContent = '—';
+        updateDisplay();
+        drawWheel();
+    }
+    
+    function escapeHtml(str) {
+        return str.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'})[m]);
+    }
+    
+    optionsInput.value = "Герман\nЭмир\nАртур\nАндрей\nМаксим";
+    updateWheel();
+    
+    spinBtn.addEventListener('click', spinWheel);
+    resetBtn.addEventListener('click', resetGame);
+    updateWheelBtn.addEventListener('click', updateWheel);
+    canvas.addEventListener('click', spinWheel);
+</script>
+
+<script>
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/g-random/sw.js').catch(console.log);
+    }
+</script>
 </body>
 </html>
