@@ -163,7 +163,7 @@
     <button id="spinBtn">🔀 Крутить колесо</button>
     
     <label>📝 Варианты (каждый с новой строки)</label>
-    <textarea id="optionsInput" rows="4" placeholder="Герман&#10;Эмир x2&#10;Артур&#10;Андрей x3"></textarea>
+    <textarea id="optionsInput" rows="4" placeholder="Герман&#10;Эмир&#10;Артур&#10;Андрей&#10;Максим"></textarea>
     <div class="hint">📌 Можно указывать множитель: «Андрей x2», «Мафия *3» — тогда вариант займёт больше места на колесе</div>
     
     <div class="checkbox-label">
@@ -260,6 +260,7 @@
         for (let i = 0; i < items.length; i++) {
             let item = items[i];
             let sectorColor = colors[i % colors.length];
+            let groupStartAngle = startAngle;
             
             for (let s = 0; s < item.weight; s++) {
                 let endAngle = startAngle + angleStep;
@@ -270,20 +271,22 @@
                 ctx.fillStyle = sectorColor;
                 ctx.fill();
                 
-                if (s === 0) {
-                    ctx.save();
-                    ctx.translate(cx, cy);
-                    ctx.rotate(startAngle + angleStep / 2);
-                    ctx.fillStyle = '#1f2937';
-                    ctx.font = 'bold 11px sans-serif';
-                    let text = item.name;
-                    if (text.length > 12) text = text.slice(0, 10) + '..';
-                    ctx.fillText(text, r * 0.65, 5);
-                    ctx.restore();
-                }
-                
                 startAngle = endAngle;
             }
+            
+            // Рисуем текст ровно посередине группы секторов
+            let groupEndAngle = startAngle;
+            let groupMidAngle = groupStartAngle + (groupEndAngle - groupStartAngle) / 2;
+            
+            ctx.save();
+            ctx.translate(cx, cy);
+            ctx.rotate(groupMidAngle);
+            ctx.fillStyle = '#1f2937';
+            ctx.font = 'bold 16px sans-serif';
+            let text = item.name;
+            if (text.length > 15) text = text.slice(0, 12) + '...';
+            ctx.fillText(text, r * 0.65, 6);
+            ctx.restore();
         }
         
         ctx.beginPath();
@@ -301,6 +304,7 @@
         let totalWeight = items.reduce((sum, item) => sum + item.weight, 0);
         let angleStep = (2 * Math.PI) / totalWeight;
         const arrowAngle = -Math.PI / 2;
+        
         let raw = (arrowAngle - currentAngle + 2 * Math.PI) % (2 * Math.PI);
         let sectorIndex = Math.floor(raw / angleStep) % totalWeight;
         
@@ -382,7 +386,7 @@
         drawWheel();
     }
     
-    optionsInput.value = "Герман\nЭмир x2\nАртур\nАндрей x3";
+    optionsInput.value = "Герман\nЭмир\nАртур\nАндрей\nМаксим";
     updateWheel();
     
     spinBtn.addEventListener('click', spinWheel);
