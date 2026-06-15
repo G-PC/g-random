@@ -215,9 +215,9 @@
     const eliminatedListDiv = document.getElementById('eliminatedList');
     const remainingCountSpan = document.getElementById('remainingCount');
     
-    let allItems = [];      // Исходные варианты с весами
-    let currentItems = [];  // Текущие варианты с весами
-    let eliminated = [];     // Выбывшие (имена)
+    let allItems = [];
+    let currentItems = [];
+    let eliminated = [];
     let currentAngle = 0;
     let spinning = false;
     let animFrame = null;
@@ -280,6 +280,7 @@
         for (let i = 0; i < currentItems.length; i++) {
             let item = currentItems[i];
             let sectorColor = colors[i % colors.length];
+            let groupStartAngle = startAngle;
             
             for (let s = 0; s < item.weight; s++) {
                 let endAngle = startAngle + angleStep;
@@ -290,20 +291,22 @@
                 ctx.fillStyle = sectorColor;
                 ctx.fill();
                 
-                if (s === 0) {
-                    ctx.save();
-                    ctx.translate(cx, cy);
-                    ctx.rotate(startAngle + angleStep / 2);
-                    ctx.fillStyle = '#1f2937';
-                    ctx.font = 'bold 14px sans-serif';
-                    let text = item.name;
-                    if (text.length > 20) text = text.slice(0, 17) + '...';
-                    ctx.fillText(text, r * 0.65, 5);
-                    ctx.restore();
-                }
-                
                 startAngle = endAngle;
             }
+            
+            // Рисуем текст ровно посередине группы секторов
+            let groupEndAngle = startAngle;
+            let groupMidAngle = groupStartAngle + (groupEndAngle - groupStartAngle) / 2;
+            
+            ctx.save();
+            ctx.translate(cx, cy);
+            ctx.rotate(groupMidAngle);
+            ctx.fillStyle = '#1f2937';
+            ctx.font = 'bold 18px sans-serif';
+            let text = item.name;
+            if (text.length > 25) text = text.slice(0, 22) + '...';
+            ctx.fillText(text, r * 0.65, 7);
+            ctx.restore();
         }
         
         ctx.beginPath();
@@ -373,7 +376,6 @@
                 const result = getCurrentOption();
                 if (result) {
                     resultDisplay.textContent = result;
-                    // Находим вариант по имени и удаляем его целиком
                     const index = currentItems.findIndex(item => item.name === result);
                     if (index !== -1) {
                         eliminated.unshift(result);
