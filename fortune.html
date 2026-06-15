@@ -207,19 +207,15 @@
     const historyList = document.getElementById('historyList');
     const removeAfterSpin = document.getElementById('removeAfterSpin');
     
-    // Храним варианты с их множителями
-    let items = [];      // [{ name: "Герман", weight: 1 }, ...]
-    let rawOptions = []; // для сохранения в textarea
+    let items = [];
     let currentAngle = 0;
     let spinning = false;
     let animFrame = null;
     let history = [];
     
-    // Парсинг строки: "Андрей x3" -> { name: "Андрей", weight: 3 }
     function parseOption(line) {
         let trimmed = line.trim();
         if (trimmed === "") return null;
-        
         let match = trimmed.match(/^(.*?)\s*[хx*]\s*(\d+)$/i);
         if (match) {
             let name = match[1].trim();
@@ -241,7 +237,6 @@
         return newItems;
     }
     
-    // Преобразование items в строку для отображения в textarea
     function itemsToString(items) {
         return items.map(item => item.weight > 1 ? `${item.name} x${item.weight}` : item.name).join('\n');
     }
@@ -267,10 +262,8 @@
             return;
         }
         
-        // Вычисляем общее количество секторов (сумма весов)
         let totalWeight = items.reduce((sum, item) => sum + item.weight, 0);
         let angleStep = (2 * Math.PI) / totalWeight;
-        
         const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD', '#F0E68C', '#87CEEB', '#FFB347', '#77DD77'];
         
         let startAngle = currentAngle;
@@ -280,6 +273,7 @@
             let item = items[i];
             let sectorCount = item.weight;
             let sectorColor = colors[i % colors.length];
+            let groupStartAngle = startAngle;
             
             for (let s = 0; s < sectorCount; s++) {
                 let endAngle = startAngle + angleStep;
@@ -290,25 +284,26 @@
                 ctx.fillStyle = sectorColor;
                 ctx.fill();
                 
-                // Рисуем текст только в первом секторе варианта (чтобы не повторять)
-                if (s === 0) {
-                    ctx.save();
-                    ctx.translate(cx, cy);
-                    ctx.rotate(startAngle + angleStep / 2);
-                    ctx.fillStyle = '#1f2937';
-                    ctx.font = 'bold 14px sans-serif';
-                    let text = item.name;
-                    if (text.length > 20) text = text.slice(0, 17) + '...';
-                    ctx.fillText(text, r * 0.65, 5);
-                    ctx.restore();
-                }
-                
                 startAngle = endAngle;
-                sectorIndex++;
             }
+            
+            // Рисуем текст ровно посередине группы секторов
+            let groupEndAngle = startAngle;
+            let groupMidAngle = groupStartAngle + (groupEndAngle - groupStartAngle) / 2;
+            
+            ctx.save();
+            ctx.translate(cx, cy);
+            ctx.rotate(groupMidAngle);
+            ctx.fillStyle = '#1f2937';
+            ctx.font = 'bold 18px sans-serif';
+            let text = item.name;
+            if (text.length > 25) text = text.slice(0, 22) + '...';
+            ctx.fillText(text, r * 0.65, 7);
+            ctx.restore();
+            
+            sectorIndex++;
         }
         
-        // Центральный кружок
         ctx.beginPath();
         ctx.arc(cx, cy, 15, 0, 2 * Math.PI);
         ctx.fillStyle = '#ffffff';
@@ -328,7 +323,6 @@
         let raw = (arrowAngle - currentAngle + 2 * Math.PI) % (2 * Math.PI);
         let sectorIndex = Math.floor(raw / angleStep) % totalWeight;
         
-        // Находим, какому варианту принадлежит этот сектор
         let accum = 0;
         for (let item of items) {
             if (sectorIndex < accum + item.weight) {
@@ -371,7 +365,6 @@
                     updateHistoryDisplay();
                     
                     if (removeAfterSpin.checked) {
-                        // Удаляем вариант целиком (все его сектора)
                         const index = items.findIndex(item => item.name === result);
                         if (index !== -1) {
                             items.splice(index, 1);
@@ -411,7 +404,6 @@
         drawWheel();
     }
     
-    // Пример с множителями
     optionsInput.value = "Герман\nЭмир x2\nАртур\nАндрей x3";
     updateWheel();
     
