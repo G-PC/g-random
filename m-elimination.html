@@ -156,11 +156,14 @@
             color: #6c757d;
             margin-top: 6px;
         }
-        footer {
-            font-size: 0.7rem;
+        .tap-footer {
             text-align: center;
-            color: #6c757d;
             margin-top: 20px;
+            font-size: 0.85rem;
+            color: #6c757d;
+            padding: 12px;
+            background: #f1f5f9;
+            border-radius: 40px;
         }
     </style>
 </head>
@@ -176,7 +179,6 @@
         <div class="pointer"></div>
     </div>
     
-    <button id="spinBtn">🎡 Крутить (на выбывание)</button>
     <button id="resetBtn" class="reset-btn">🔄 Сбросить все варианты</button>
     
     <label>📝 Варианты (каждый с новой строки)</label>
@@ -196,14 +198,15 @@
         <div id="eliminatedList"></div>
     </div>
     
-    <footer>Нажмите на колесо, чтобы крутить</footer>
+    <div class="tap-footer">
+        👆 Нажмите на колесо, чтобы крутить
+    </div>
 </div>
 
 <script>
     const canvas = document.getElementById('wheelCanvas');
     const ctx = canvas.getContext('2d');
     const optionsInput = document.getElementById('optionsInput');
-    const spinBtn = document.getElementById('spinBtn');
     const resetBtn = document.getElementById('resetBtn');
     const updateWheelBtn = document.getElementById('updateWheelBtn');
     const resultDisplay = document.getElementById('resultDisplay');
@@ -289,7 +292,6 @@
                 startAngle = endAngle;
             }
             
-            // Рисуем текст ровно посередине группы секторов
             let groupEndAngle = startAngle;
             let groupMidAngle = groupStartAngle + (groupEndAngle - groupStartAngle) / 2;
             
@@ -297,10 +299,10 @@
             ctx.translate(cx, cy);
             ctx.rotate(groupMidAngle);
             ctx.fillStyle = '#1f2937';
-            ctx.font = 'bold 16px sans-serif';
+            ctx.font = 'bold 15px sans-serif';
             let text = item.name;
             if (text.length > 15) text = text.slice(0, 12) + '...';
-            ctx.fillText(text, r * 0.65, 6);
+            ctx.fillText(text, r * 0.5, 5);
             ctx.restore();
         }
         
@@ -341,7 +343,6 @@
         } else {
             eliminatedListDiv.innerHTML = eliminated.map(e => `<div class="eliminated-item">• ${escapeHtml(e)}</div>`).join('');
         }
-        spinBtn.disabled = currentItems.length === 0;
     }
     
     function spinWheel() {
@@ -420,7 +421,6 @@
     optionsInput.value = "Герман\nЭмир\nАртур\nАндрей\nМаксим";
     updateWheel();
     
-    spinBtn.addEventListener('click', spinWheel);
     resetBtn.addEventListener('click', resetGame);
     updateWheelBtn.addEventListener('click', updateWheel);
     canvas.addEventListener('click', spinWheel);
