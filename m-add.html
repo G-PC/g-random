@@ -135,59 +135,6 @@
             animation: modalFadeIn 0.2s ease;
         }
 
-        /* Модальное окно ошибки */
-        .error-dialog {
-            background: white;
-            border-radius: 28px;
-            max-width: 300px;
-            width: 90%;
-            overflow: hidden;
-            animation: modalFadeIn 0.2s ease;
-            text-align: center;
-        }
-
-        .error-header {
-            padding: 24px 20px 0 20px;
-            text-align: center;
-        }
-
-        .error-header .error-icon {
-            font-size: 3rem;
-            margin-bottom: 12px;
-        }
-
-        .error-header h3 {
-            font-size: 1.3rem;
-            color: #1f2937;
-            margin-bottom: 8px;
-        }
-
-        .error-header p {
-            color: #6b7280;
-            font-size: 0.85rem;
-        }
-
-        .error-actions {
-            padding: 20px;
-        }
-
-        .error-btn {
-            background: #1e88e5;
-            color: white;
-            border: none;
-            border-radius: 40px;
-            padding: 12px 20px;
-            width: 100%;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-        }
-
-        .error-btn:active {
-            background: #0b5e8a;
-            transform: scale(0.97);
-        }
-
         @keyframes modalFadeIn {
             from {
                 opacity: 0;
@@ -274,49 +221,6 @@
 </head>
 <body>
 
-<script>
-    // Функции для модального окна выбора источника
-    function showInstallDialog() {
-        const modal = document.getElementById('installModal');
-        if (modal) modal.style.display = 'flex';
-    }
-
-    function closeInstallModal() {
-        const modal = document.getElementById('installModal');
-        if (modal) modal.style.display = 'none';
-    }
-
-    function downloadAPK() {
-        window.open('https://g-pc.github.io/g-random/G-RANDOM_android.apk', '_blank');
-        closeInstallModal();
-    }
-
-    function openRuStore() {
-        window.open('https://www.rustore.ru/catalog/app/com.gpc.grandom', '_blank');
-        closeInstallModal();
-    }
-
-    // Функции для модального окна ошибки интернета
-    function showNoInternetDialog() {
-        const modal = document.getElementById('noInternetModal');
-        if (modal) modal.style.display = 'flex';
-    }
-
-    function closeNoInternetModal() {
-        const modal = document.getElementById('noInternetModal');
-        if (modal) modal.style.display = 'none';
-    }
-
-    // Функция открытия PDF с проверкой интернета
-    function openPDFWithCheck() {
-        if (!navigator.onLine) {
-            showNoInternetDialog();
-        } else {
-            window.open('MAFIA_roles.pdf', '_blank');
-        }
-    }
-</script>
-
 <div class="container">
     <a href="index.html" class="back-btn">← На главную</a>
     <h1>⚙️ Дополнительное</h1>
@@ -328,12 +232,14 @@
             <div class="card-title">Описание ролей</div>
             <div class="card-desc">Описание ролей для игры в Мафию в порядке их действий (PDF)</div>
         </div>
-<a href="m-feedback.html" class="card">
+
+        <a href="m-feedback.html" class="card">
             <div class="card-icon">📧</div>
             <div class="card-title">Обратная связь</div>
             <div class="card-desc">Сообщите о проблеме, задайте вопрос или поделитесь идеей</div>
         </a>
-        <!-- Кнопка установки приложения -->
+
+        <!-- Кнопка установки приложения (видна на Android в браузере) -->
         <div id="installCard" class="card install-card">
             <div class="card-icon">📲</div>
             <div class="card-title">Установить приложение</div>
@@ -373,21 +279,38 @@
     </div>
 </div>
 
-<!-- Модальное окно ошибки интернета для PDF -->
-<div id="noInternetModal" class="modal-overlay" onclick="if(event.target===this) closeNoInternetModal()">
-    <div class="error-dialog">
-        <div class="error-header">
-            <div class="error-icon">📡</div>
-            <h3>Нет соединения</h3>
-            <p>Для открытия файла «Описание ролей» требуется интернет-соединение.</p>
-        </div>
-        <div class="error-actions">
-            <button class="error-btn" onclick="closeNoInternetModal()">Хорошо</button>
-        </div>
-    </div>
-</div>
-
 <script>
+    // Проверка интернета для PDF
+    function openPDFWithCheck() {
+        if (!navigator.onLine) {
+            alert('⚠️ Нет интернет-соединения.\n\nДля открытия файла "Описание ролей" требуется интернет.');
+        } else {
+            window.open('MAFIA_roles.pdf', '_blank');
+        }
+    }
+
+    // Модальное окно установки
+    function showInstallDialog() {
+        const modal = document.getElementById('installModal');
+        if (modal) modal.style.display = 'flex';
+    }
+
+    function closeInstallModal() {
+        const modal = document.getElementById('installModal');
+        if (modal) modal.style.display = 'none';
+    }
+
+    function downloadAPK() {
+        window.open('https://g-pc.github.io/g-random/G-RANDOM_android.apk', '_blank');
+        closeInstallModal();
+    }
+
+    function openRuStore() {
+        window.open('https://www.rustore.ru/catalog/app/com.gpc.grandom', '_blank');
+        closeInstallModal();
+    }
+
+    // Настройка кнопки установки в зависимости от устройства
     (function() {
         const installCard = document.getElementById('installCard');
         if (!installCard) return;
