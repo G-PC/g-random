@@ -111,7 +111,6 @@
             background: linear-gradient(135deg, #43a047 0%, #1b5e20 100%);
         }
 
-        /* Модальное окно выбора источника */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -291,7 +290,6 @@
             <div class="card-desc">Сообщите о проблеме, задайте вопрос или поделитесь идеей</div>
         </a>
 
-        <!-- Карточка "Основной сайт G-PC" — будет скрыта в приложении -->
         <div id="mainSiteCard" class="card" onclick="openMainSite()" style="display: none;">
             <div class="card-icon">🌐</div>
             <div class="card-title">Основной сайт G-PC</div>
@@ -379,7 +377,7 @@
     }
 
     function downloadAPK() {
-        window.open('https://g-pc.github.io/g-random/G-RANDOM_android.apk', '_blank');
+        window.open('https://g-pc.github.io/g-random/G-RANDOM_android_1.8.apk', '_blank');
         closeInstallModal();
     }
 
@@ -397,7 +395,6 @@
         const isIOS = /iphone|ipad|ipod/.test(ua);
         const isWebView = ua.includes('wv') || (ua.includes('android') && !ua.includes('chrome'));
         
-        // Кнопка установки: скрываем в WebView
         if (installCard) {
             if (isWebView) {
                 installCard.style.display = 'none';
@@ -418,7 +415,6 @@
             }
         }
         
-        // Карточка "Основной сайт G-PC": показываем ТОЛЬКО в браузере (не в WebView)
         if (mainSiteCard) {
             if (!isWebView) {
                 mainSiteCard.style.display = 'block';
