@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Колесо фортуны — Десктоп</title>
+    <title>Колесо фортуны — Рандомайзер G-РАНДОМ</title>
     <link rel="icon" type="image/x-icon" href="/g-random/favicon.ico">
     <style>
         * {
@@ -287,7 +287,6 @@
                 startAngle = endAngle;
             }
             
-            // Рисуем текст ровно посередине группы секторов
             let groupEndAngle = startAngle;
             let groupMidAngle = groupStartAngle + (groupEndAngle - groupStartAngle) / 2;
             
@@ -404,7 +403,7 @@
         drawWheel();
     }
     
-optionsInput.value = "Герман\nЭмир\nАртур\nАндрей\nМаксим";
+    optionsInput.value = "Герман\nЭмир\nАртур\nАндрей\nМаксим";
     updateWheel();
     
     spinBtn.addEventListener('click', spinWheel);
