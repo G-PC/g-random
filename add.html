@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Дополнительные инструменты</title>
+    <title>Дополнительные инструменты — Рандомайзер G-РАНДОМ</title>
     <link rel="icon" type="image/x-icon" href="/g-random/favicon.ico">
     <style>
         * {
@@ -113,24 +113,33 @@
 </head>
 <body>
 
-
     <div class="container">
         <a href="index.html" class="back-btn">← На главную</a>
         <h1>⚙️ Дополнительное</h1>
         <div class="subtitle">Полезные материалы и инструменты</div>
         <div class="cards">
-            <a href="MAFIA_roles.pdf" class="card" target="_blank">
+            <div class="card" onclick="openPDFWithCheck()">
                 <div class="card-icon">📖</div>
                 <div class="card-title">Описание ролей</div>
                 <div class="card-desc">Описание ролей для игры в Мафию в порядке их действий (PDF)</div>
-            </a>
-<a href="feedback.html" class="card">
+            </div>
+            <a href="feedback.html" class="card">
                 <div class="card-icon">📧</div>
                 <div class="card-title">Обратная связь</div>
                 <div class="card-desc">Сообщите о проблеме, задайте вопрос или поделитесь идеей</div>
             </a>
         </div>
     </div>
+
+    <script>
+        function openPDFWithCheck() {
+            if (!navigator.onLine) {
+                alert('Нет интернет-соединения. Для открытия файла "Описание ролей" требуется интернет.');
+            } else {
+                window.open('MAFIA_roles.pdf', '_blank');
+            }
+        }
+    </script>
 
 </body>
 </html>
