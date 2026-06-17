@@ -278,7 +278,7 @@
     <a href="index.html" class="back-btn">← На главную</a>
     <h1>⚙️ Дополнительное</h1>
     <div class="subtitle">Полезные материалы и инструменты</div>
-    <div class="cards">
+    <div class="cards" id="cardsContainer">
         <div class="card" onclick="openPDFWithCheck()">
             <div class="card-icon">📖</div>
             <div class="card-title">Описание ролей</div>
@@ -291,7 +291,8 @@
             <div class="card-desc">Сообщите о проблеме, задайте вопрос или поделитесь идеей</div>
         </a>
 
-        <div class="card" onclick="openMainSite()">
+        <!-- Карточка "Основной сайт G-PC" — будет скрыта в приложении -->
+        <div id="mainSiteCard" class="card" onclick="openMainSite()" style="display: none;">
             <div class="card-icon">🌐</div>
             <div class="card-title">Основной сайт G-PC</div>
             <div class="card-desc">Перейти на главный сайт G-PC</div>
@@ -364,7 +365,7 @@
     }
 
     function openMainSite() {
-        window.open('https://g-wpi.tilda.ws/', '_system');
+        window.open('https://g-wpi.tilda.ws/', '_blank');
     }
 
     function showInstallDialog() {
@@ -389,34 +390,41 @@
 
     (function() {
         const installCard = document.getElementById('installCard');
-        if (!installCard) return;
+        const mainSiteCard = document.getElementById('mainSiteCard');
         
         const ua = navigator.userAgent.toLowerCase();
         const isAndroid = ua.includes('android');
         const isIOS = /iphone|ipad|ipod/.test(ua);
         const isWebView = ua.includes('wv') || (ua.includes('android') && !ua.includes('chrome'));
         
-        if (isWebView) {
-            installCard.style.display = 'none';
-            return;
+        // Кнопка установки: скрываем в WebView
+        if (installCard) {
+            if (isWebView) {
+                installCard.style.display = 'none';
+            } else if (isAndroid) {
+                installCard.style.display = 'block';
+                installCard.onclick = () => showInstallDialog();
+            } else if (isIOS) {
+                installCard.style.display = 'block';
+                const icon = installCard.querySelector('.card-icon');
+                const title = installCard.querySelector('.card-title');
+                const desc = installCard.querySelector('.card-desc');
+                if (icon) icon.textContent = '📱';
+                if (title) title.textContent = 'Добавить на главный экран';
+                if (desc) desc.textContent = 'Как установить наш сайт как приложение на iPhone';
+                installCard.onclick = () => alert('Нажмите «Поделиться» → «На экран «Домой»»');
+            } else {
+                installCard.style.display = 'none';
+            }
         }
         
-        if (isAndroid) {
-            installCard.style.display = 'block';
-            installCard.onclick = () => showInstallDialog();
-        } 
-        else if (isIOS) {
-            installCard.style.display = 'block';
-            const icon = installCard.querySelector('.card-icon');
-            const title = installCard.querySelector('.card-title');
-            const desc = installCard.querySelector('.card-desc');
-            if (icon) icon.textContent = '📱';
-            if (title) title.textContent = 'Добавить на главный экран';
-            if (desc) desc.textContent = 'Как установить наш сайт как приложение на iPhone';
-            installCard.onclick = () => alert('Нажмите «Поделиться» → «На экран «Домой»»');
-        }
-        else {
-            installCard.style.display = 'none';
+        // Карточка "Основной сайт G-PC": показываем ТОЛЬКО в браузере (не в WebView)
+        if (mainSiteCard) {
+            if (!isWebView) {
+                mainSiteCard.style.display = 'block';
+            } else {
+                mainSiteCard.style.display = 'none';
+            }
         }
     })();
 </script>
