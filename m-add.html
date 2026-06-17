@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-    <title>Дополнительные инструменты</title>
+    <title>Дополнительные инструменты — Рандомайзер G-РАНДОМ</title>
     <link rel="icon" type="image/x-icon" href="/g-random/favicon.ico">
     <style>
         * {
@@ -111,7 +111,6 @@
             background: linear-gradient(135deg, #43a047 0%, #1b5e20 100%);
         }
 
-        /* Модальное окно выбора источника */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -226,7 +225,6 @@
     <h1>⚙️ Дополнительное</h1>
     <div class="subtitle">Полезные материалы и инструменты</div>
     <div class="cards">
-        <!-- Карточка PDF с проверкой интернета -->
         <div class="card" onclick="openPDFWithCheck()">
             <div class="card-icon">📖</div>
             <div class="card-title">Описание ролей</div>
@@ -239,7 +237,12 @@
             <div class="card-desc">Сообщите о проблеме, задайте вопрос или поделитесь идеей</div>
         </a>
 
-        <!-- Кнопка установки приложения (видна на Android в браузере) -->
+        <a href="https://g-wpi.tilda.ws/" class="card" target="_blank">
+            <div class="card-icon">🌐</div>
+            <div class="card-title">Основной сайт G-PC</div>
+            <div class="card-desc">Перейти на главный сайт компании G-PC</div>
+        </a>
+
         <div id="installCard" class="card install-card">
             <div class="card-icon">📲</div>
             <div class="card-title">Установить приложение</div>
@@ -280,7 +283,6 @@
 </div>
 
 <script>
-    // Проверка интернета для PDF
     function openPDFWithCheck() {
         if (!navigator.onLine) {
             alert('⚠️ Нет интернет-соединения.\n\nДля открытия файла "Описание ролей" требуется интернет.');
@@ -289,7 +291,6 @@
         }
     }
 
-    // Модальное окно установки
     function showInstallDialog() {
         const modal = document.getElementById('installModal');
         if (modal) modal.style.display = 'flex';
@@ -310,7 +311,6 @@
         closeInstallModal();
     }
 
-    // Настройка кнопки установки в зависимости от устройства
     (function() {
         const installCard = document.getElementById('installCard');
         if (!installCard) return;
@@ -320,18 +320,15 @@
         const isIOS = /iphone|ipad|ipod/.test(ua);
         const isWebView = ua.includes('wv') || (ua.includes('android') && !ua.includes('chrome'));
         
-        // Если внутри APK — скрываем кнопку
         if (isWebView) {
             installCard.style.display = 'none';
             return;
         }
         
-        // На Android показываем кнопку с модальным окном
         if (isAndroid) {
             installCard.style.display = 'block';
             installCard.onclick = () => showInstallDialog();
         } 
-        // На iPhone показываем инструкцию
         else if (isIOS) {
             installCard.style.display = 'block';
             const icon = installCard.querySelector('.card-icon');
@@ -343,7 +340,6 @@
             installCard.onclick = () => alert('Нажмите «Поделиться» → «На экран «Домой»»');
         }
         else {
-            // На компьютере скрываем
             installCard.style.display = 'none';
         }
     })();
