@@ -111,6 +111,7 @@
             background: linear-gradient(135deg, #43a047 0%, #1b5e20 100%);
         }
 
+        /* Модальное окно выбора источника */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -132,6 +133,59 @@
             width: 90%;
             overflow: hidden;
             animation: modalFadeIn 0.2s ease;
+        }
+
+        .error-dialog {
+            background: white;
+            border-radius: 28px;
+            max-width: 300px;
+            width: 90%;
+            overflow: hidden;
+            animation: modalFadeIn 0.2s ease;
+            text-align: center;
+        }
+
+        .error-header {
+            padding: 24px 20px 0 20px;
+            text-align: center;
+        }
+
+        .error-header .error-icon {
+            font-size: 3rem;
+            margin-bottom: 12px;
+        }
+
+        .error-header h3 {
+            font-size: 1.3rem;
+            color: #1f2937;
+            margin-bottom: 8px;
+        }
+
+        .error-header p {
+            color: #6b7280;
+            font-size: 0.85rem;
+            line-height: 1.4;
+        }
+
+        .error-actions {
+            padding: 20px;
+        }
+
+        .error-btn {
+            background: #1e88e5;
+            color: white;
+            border: none;
+            border-radius: 40px;
+            padding: 12px 20px;
+            width: 100%;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .error-btn:active {
+            background: #0b5e8a;
+            transform: scale(0.97);
         }
 
         @keyframes modalFadeIn {
@@ -240,13 +294,27 @@
         <a href="https://g-wpi.tilda.ws/" class="card" target="_blank">
             <div class="card-icon">🌐</div>
             <div class="card-title">Основной сайт G-PC</div>
-            <div class="card-desc">Перейти на главный сайт G-PC</div>
+            <div class="card-desc">Перейти на главный сайт компании G-PC</div>
         </a>
 
         <div id="installCard" class="card install-card">
             <div class="card-icon">📲</div>
             <div class="card-title">Установить приложение</div>
             <div class="card-desc">Выберите источник: APK или RuStore</div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно ошибки интернета для PDF -->
+<div id="noInternetModal" class="modal-overlay" onclick="if(event.target===this) closeNoInternetModal()">
+    <div class="error-dialog">
+        <div class="error-header">
+            <div class="error-icon">📡</div>
+            <h3>Нет соединения</h3>
+            <p>Для открытия файла «Описание ролей» требуется интернет-соединение.</p>
+        </div>
+        <div class="error-actions">
+            <button class="error-btn" onclick="closeNoInternetModal()">Хорошо</button>
         </div>
     </div>
 </div>
@@ -283,9 +351,13 @@
 </div>
 
 <script>
+    function closeNoInternetModal() {
+        document.getElementById('noInternetModal').style.display = 'none';
+    }
+
     function openPDFWithCheck() {
         if (!navigator.onLine) {
-            alert('⚠️ Нет интернет-соединения.\n\nДля открытия файла "Описание ролей" требуется интернет.');
+            document.getElementById('noInternetModal').style.display = 'flex';
         } else {
             window.open('MAFIA_roles.pdf', '_blank');
         }
